@@ -1,12 +1,10 @@
 mod datapoint;
 mod merge;
 mod union;
-mod versioned_value;
 
 pub use datapoint::DataPoint;
 pub use merge::Merge;
 pub use union::{Union, UnionResult};
-pub use versioned_value::VersionedValue;
 
 pub struct FromIteratorSeries<T> {
     iterator: T,

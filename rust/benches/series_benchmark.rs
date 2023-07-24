@@ -1,9 +1,7 @@
 use std::time::Duration;
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use dataseries::{
-    VersionedValue, {DataPoint, Series, UnionResult},
-};
+use dataseries::{DataPoint, Series, UnionResult};
 use rand::Rng;
 
 fn to_option<L, R>(x: UnionResult<L, R>) -> (Option<L>, Option<R>) {
@@ -18,27 +16,27 @@ fn union_simple_benchmark(c: &mut Criterion) {
     c.bench_function("simple union + merge", |b| {
         b.iter(|| {
             let x = dataseries::of_iter(vec![
-                DataPoint::new(i32::MIN, VersionedValue::new(i32::MIN, None)),
-                DataPoint::new(1, VersionedValue::new(1, Some(100))),
-                DataPoint::new(10, VersionedValue::new(1, None)),
-                DataPoint::new(15, VersionedValue::new(1, Some(150))),
-                DataPoint::new(300, VersionedValue::new(1, None)),
-                DataPoint::new(315, VersionedValue::new(1, Some(150))),
-                DataPoint::new(316, VersionedValue::new(1, None)),
+                DataPoint::new(i32::MIN, None),
+                DataPoint::new(1, Some(100)),
+                DataPoint::new(10, None),
+                DataPoint::new(15, Some(150)),
+                DataPoint::new(300, None),
+                DataPoint::new(315, Some(150)),
+                DataPoint::new(316, None),
             ]);
 
             let y = dataseries::of_iter(vec![
-                DataPoint::new(i32::MIN, VersionedValue::new(i32::MIN, None)),
-                DataPoint::new(2, VersionedValue::new(2, Some(100))),
-                DataPoint::new(3, VersionedValue::new(2, None)),
-                DataPoint::new(3, VersionedValue::new(2, Some(150))),
-                DataPoint::new(4, VersionedValue::new(2, None)),
-                DataPoint::new(10, VersionedValue::new(2, Some(150))),
-                DataPoint::new(50, VersionedValue::new(2, None)),
-                DataPoint::new(60, VersionedValue::new(2, Some(150))),
-                DataPoint::new(80, VersionedValue::new(2, None)),
-                DataPoint::new(100, VersionedValue::new(2, Some(150))),
-                DataPoint::new(1200, VersionedValue::new(2, None)),
+                DataPoint::new(i32::MIN, None),
+                DataPoint::new(2, Some(100)),
+                DataPoint::new(3, None),
+                DataPoint::new(3, Some(150)),
+                DataPoint::new(4, None),
+                DataPoint::new(10, Some(150)),
+                DataPoint::new(50, None),
+                DataPoint::new(60, Some(150)),
+                DataPoint::new(80, None),
+                DataPoint::new(100, Some(150)),
+                DataPoint::new(1200, None),
             ]);
 
             black_box(x.union(y, to_option).merge()).for_each(|_| ());
@@ -54,8 +52,8 @@ fn union_complex_benchmark(c: &mut Criterion) {
                 let r = 1..1_000_000;
                 dataseries::of_iter(r.flat_map(|x| {
                     vec![
-                        DataPoint::new(x, VersionedValue::new(1, Some(rng.gen_range(10..100)))),
-                        DataPoint::new(x + rng.gen_range(0..100), VersionedValue::new(1, None)),
+                        DataPoint::new(x, Some(rng.gen_range(10..100))),
+                        DataPoint::new(x + rng.gen_range(0..100), None),
                     ]
                 }))
             };
@@ -64,8 +62,8 @@ fn union_complex_benchmark(c: &mut Criterion) {
                 let r = 1..100_000;
                 dataseries::of_iter(r.flat_map(|x| {
                     vec![
-                        DataPoint::new(x, VersionedValue::new(2, Some(rng.gen_range(50..60)))),
-                        DataPoint::new(x + rng.gen_range(0..1000), VersionedValue::new(2, None)),
+                        DataPoint::new(x, Some(rng.gen_range(50..60))),
+                        DataPoint::new(x + rng.gen_range(0..1000), None),
                     ]
                 }))
             };
