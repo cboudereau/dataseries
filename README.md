@@ -27,7 +27,23 @@ The ```crdt``` example provides an example of the [conflict-free replicated data
 ## trade-offs
 
 ### interval representation
-An interval can be defined by using 2 points (from and to) with an associated value but it can be difficult to index those 2 points in nosql databases (Global secondary index) or simply using a TSDB (timeseries database).
+
+```
+Half-open interval                      Data-series (time-series/gauge)
+(n value and 2n points)                 (n+1 datapoints)
+                            \           
+1    3    5                  \          1    3    5           +∞
+[----[----[                   \         |----|----|------------
+ 100   120                    /         100  120  ∅
+                             /
+                            /
+```
+||pros|cons|
+|-|-|-|
+|half-open interval|+same read and write model|-illegal state representation<br/>-requires global secondary index to support range queries|
+|data-series/time-series|+nosql and TSDB friendly<br/>+less illegal states<br/>+compatibility with time/data-series functions and visualization<br/>+compact format (requires only n+1 datapoint intead of 2n))<br/>+partitionning is trivial (only one dimension)<br/>+updates are less complex (no need to update impacted points of interval)|-read and write models are different<br/>-hole should be represented with a datapoint ```None``` value|
+
+An interval can be defined by using 2 points (upper and lower bound) with an associated value but it can be difficult to index those 2 points in nosql databases (Global secondary index) or simply using a TSDB (timeseries database).
 
 Another approach consists of defining an intermediate model, a data-series with only one point and one value so that the datapoint feet really well with TSDB and is algorithm friendly. 
 
