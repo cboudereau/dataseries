@@ -30,7 +30,7 @@ The ```crdt``` example provides an example of the [conflict-free replicated data
 
 ```
 Half-open interval                      Data-series (time-series/gauge)
-(n value and 2n points)                 (n+1 datapoints)
+(n value and 2n points/delta)           (n+1 datapoints)
                             \           
 1    3    5                  \          1    3    5           +∞
 [----[----[                   \         |----|----|------------
