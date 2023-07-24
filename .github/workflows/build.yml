@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          sparse-checkout: rust
       - name: fmt
         run: cargo fmt --all -- --check
       - name: clippy
@@ -22,6 +24,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+      with:
+        sparse-checkout: rust
     - name: build
       run: cargo build --verbose
     - name: run tests
