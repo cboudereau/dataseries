@@ -47,7 +47,6 @@ pub trait Series: Iterator<Item = DataPoint<Self::Point, Self::Value>> + Sized {
     }
 }
 
-//TODO : convert with From trait impl instead ?
 pub fn of_iter<T, IT>(into_iter: T) -> FromIteratorSeries<IT>
 where
     IT: Iterator,
@@ -55,13 +54,4 @@ where
 {
     let iterator = into_iter.into_iter();
     FromIteratorSeries { iterator }
-}
-
-impl<IT, P, V> From<IT> for FromIteratorSeries<IT>
-where
-    IT: Iterator<Item = DataPoint<P, V>>,
-{
-    fn from(iterator: IT) -> Self {
-        FromIteratorSeries { iterator }
-    }
 }
