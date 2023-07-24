@@ -109,20 +109,17 @@ where
 }
 
 fn main() {
-    let s1 = vec![
+    let s1 = dataseries::of_iter(vec![
         datapoint(TimestampMicros::new(1), date(2023, 1, 3), 50),
         end(date(2023, 1, 10)),
-    ];
+    ]);
 
-    let s2 = vec![
+    let s2 = dataseries::of_iter(vec![
         datapoint(TimestampMicros::new(2), date(2023, 1, 4), 100),
         end(date(2023, 1, 5)),
         datapoint(TimestampMicros::new(2), date(2023, 1, 7), 110),
         end(date(2023, 1, 9)),
-    ];
-
-    let s1 = dataseries::of_iter(s1);
-    let s2 = dataseries::of_iter(s2);
+    ]);
 
     let actual = s1
         .union(s2, |x| match x {
@@ -140,6 +137,10 @@ fn main() {
         end(date(2023, 1, 10)),
     ];
 
-    test("conflict free replicated data type merge test", expected.as_slice(), actual.as_slice());
+    test(
+        "conflict free replicated data type merge test",
+        expected.as_slice(),
+        actual.as_slice(),
+    );
     println!("done")
 }
