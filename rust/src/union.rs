@@ -1,3 +1,324 @@
+use std::cmp::{max, min, Ordering};
+
+use super::{DataPoint, Series};
+
+enum CursorState<T> {
+    NotPulled,
+    Single(T),
+    Pair { current: T, next: T },
+    Done,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+enum Cursor<T> {
+    Single(T),
+    Pair { fst: T, snd: T },
+}
+
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+enum Value<T> {
+    Value(T),
+    Infinite,
+}
+
+impl<T> Cursor<T> {
+    fn fst(&self) -> &T {
+        match self {
+            Self::Single(v) | Self::Pair { fst: v, snd: _ } => v,
+        }
+    }
+
+    fn can_overlap(&self, other: &Self) -> bool
+    where
+        T: Ord,
+    {
+        let fst = max(self.fst(), other.fst());
+        let snd = min(self.snd(), other.snd());
+        snd > Value::Value(fst)
+    }
+
+    fn map<'a, F, U>(&'a self, f: F) -> Cursor<&'a U>
+    where
+        F: Fn(&'a T) -> &'a U,
+    {
+        match self {
+            Cursor::Single(v) => Cursor::Single(f(v)),
+            Cursor::Pair { fst, snd } => Cursor::Pair {
+                fst: f(fst),
+                snd: f(snd),
+            },
+        }
+    }
+
+    fn snd(&self) -> Value<&T> {
+        match self {
+            Self::Single(_) => Value::Infinite,
+            Self::Pair { fst: _, snd: v } => Value::Value(v),
+        }
+    }
+}
+
+struct CursorIterator<IT>
+where
+    IT: Iterator,
+{
+    iterator: IT,
+    state: CursorState<IT::Item>,
+}
+
+impl<IT> CursorIterator<IT>
+where
+    IT: Iterator,
+{
+    fn new(iterator: IT) -> Self {
+        Self {
+            iterator,
+            state: CursorState::NotPulled,
+        }
+    }
+}
+
+impl<IT> Iterator for CursorIterator<IT>
+where
+    IT: Iterator,
+    IT::Item: Copy,
+{
+    type Item = Cursor<IT::Item>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        loop {
+            match self.state {
+                CursorState::Done => return None,
+
+                CursorState::NotPulled => match self.iterator.next() {
+                    Some(current) => match self.iterator.next() {
+                        Some(next) => {
+                            let value = CursorState::Pair { current, next };
+                            self.state = value;
+                        }
+                        None => {
+                            self.state = CursorState::Single(current);
+                        }
+                    },
+                    None => {
+                        self.state = CursorState::Done;
+                    }
+                },
+
+                CursorState::Pair { current, next } => match self.iterator.next() {
+                    None => {
+                        self.state = CursorState::Single(next);
+                        return Some(Cursor::Pair {
+                            fst: current,
+                            snd: next,
+                        });
+                    }
+                    Some(next2) => {
+                        self.state = CursorState::Pair {
+                            current: next,
+                            next: next2,
+                        };
+
+                        return Some(Cursor::Pair {
+                            fst: current,
+                            snd: next,
+                        });
+                    }
+                },
+
+                CursorState::Single(single) => {
+                    self.state = CursorState::Done;
+                    return Some(Cursor::Single(single));
+                }
+            }
+        }
+    }
+}
+
+pub struct Union<P, L, R, F>
+where
+    R: Series<Point = P>,
+    L: Series<Point = P>,
+{
+    left: CursorIterator<L>,
+    right: CursorIterator<R>,
+    f: F,
+    state: UnionState<L::Item, R::Item>,
+}
+
+impl<P, L, R, F> Union<P, L, R, F>
+where
+    R: Series<Point = P>,
+    L: Series<Point = P>,
+{
+    pub(crate) fn new(left: L, right: R, f: F) -> Self {
+        Self {
+            left: CursorIterator::new(left),
+            right: CursorIterator::new(right),
+            f,
+            state: UnionState::default(),
+        }
+    }
+}
+
+#[derive(Default)]
+enum UnionState<L, R> {
+    #[default]
+    None,
+    LeftOnly(Cursor<L>),
+    RightOnly(Cursor<R>),
+    Disjointed {
+        left: Cursor<L>,
+        right: Cursor<R>,
+    },
+    Overlapped {
+        left: Cursor<L>,
+        right: Cursor<R>,
+    },
+}
+
+pub enum UnionResult<L, R> {
+    LeftOnly(L),
+    RightOnly(R),
+    Union { left: L, right: R },
+}
+
+impl<L, R, F, T, P> Iterator for Union<P, L, R, F>
+where
+    R: Series<Point = P>,
+    L: Series<Point = P>,
+    P: Copy + Ord + std::fmt::Debug,
+    R::Value: Copy + std::fmt::Debug,
+    L::Value: Copy + std::fmt::Debug,
+    F: Fn(UnionResult<L::Value, R::Value>) -> T,
+{
+    type Item = DataPoint<L::Point, T>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let get_union_state =
+            |left: Cursor<DataPoint<P, L::Value>>, right: Cursor<DataPoint<P, R::Value>>| {
+                if left.fst().point() == right.fst().point() {
+                    UnionState::Overlapped { left, right }
+                } else {
+                    UnionState::Disjointed { left, right }
+                }
+            };
+
+        self.state = {
+            match &self.state {
+                UnionState::None => match (self.left.next(), self.right.next()) {
+                    (None, None) => None,
+                    (Some(left), None) => Some(UnionState::LeftOnly(left)),
+                    (None, Some(right)) => Some(UnionState::RightOnly(right)),
+                    (Some(left), Some(right)) => Some(get_union_state(left, right)),
+                },
+                UnionState::Overlapped { left, right } => match left
+                    .map(|x| x.point())
+                    .snd()
+                    .cmp(&right.map(|x| x.point()).snd())
+                {
+                    Ordering::Less => self.left.next().map(|left| UnionState::Overlapped {
+                        left,
+                        right: right.to_owned(),
+                    }),
+                    Ordering::Greater => self.right.next().map(|right| UnionState::Overlapped {
+                        left: left.to_owned(),
+                        right,
+                    }),
+                    Ordering::Equal => self.left.next().and_then(|left| {
+                        self.right
+                            .next()
+                            .map(|right| UnionState::Overlapped { left, right })
+                    }),
+                },
+                UnionState::RightOnly(_) => self.right.next().map(UnionState::RightOnly),
+
+                UnionState::LeftOnly(_) => self.left.next().map(UnionState::LeftOnly),
+                UnionState::Disjointed { left, right }
+                    if left
+                        .map(|x| x.point())
+                        .can_overlap(&right.map(|x| x.point())) =>
+                {
+                    Some(UnionState::Overlapped {
+                        left: left.to_owned(),
+                        right: right.to_owned(),
+                    })
+                }
+                UnionState::Disjointed { left, right } => {
+                    if left.map(|x| x.point()).snd() < right.map(|x| x.point()).snd() {
+                        self.left
+                            .next()
+                            .map(|left| get_union_state(left, right.to_owned()))
+                    } else {
+                        self.right
+                            .next()
+                            .map(|right| get_union_state(left.to_owned(), right))
+                    }
+                }
+            }
+        }
+        .unwrap_or(UnionState::None);
+
+        match &self.state {
+            UnionState::None => None,
+            UnionState::LeftOnly(left) => {
+                let left = left.fst();
+                Some(DataPoint::new(
+                    left.point().to_owned(),
+                    (self.f)(UnionResult::LeftOnly(left.data().to_owned())),
+                ))
+            }
+            UnionState::RightOnly(right) => {
+                let right = right.fst();
+                Some(DataPoint::new(
+                    right.point().to_owned(),
+                    (self.f)(UnionResult::RightOnly(right.data().to_owned())),
+                ))
+            }
+            UnionState::Disjointed { left, right } => {
+                let left = left.fst();
+                let right = right.fst();
+                if left.point() < right.point() {
+                    Some(DataPoint::new(
+                        left.point().to_owned(),
+                        (self.f)(UnionResult::LeftOnly(left.data().to_owned())),
+                    ))
+                } else {
+                    Some(DataPoint::new(
+                        right.point().to_owned(),
+                        (self.f)(UnionResult::RightOnly(right.data().to_owned())),
+                    ))
+                }
+            }
+            UnionState::Overlapped { left, right } => {
+                let left = left.fst();
+                let right = right.fst();
+                Some(DataPoint::new(
+                    max(left.point(), right.point()).to_owned(),
+                    (self.f)(UnionResult::Union {
+                        left: left.data().to_owned(),
+                        right: right.data().to_owned(),
+                    }),
+                ))
+            }
+        }
+    }
+}
+
+impl<P, L, R, F, T> Series for Union<P, L, R, F>
+where
+    P: Copy + Ord + std::fmt::Debug,
+    L: Series<Point = P>,
+    R: Series<Point = P>,
+    R::Value: Copy + std::fmt::Debug,
+    L::Value: Copy + std::fmt::Debug,
+    F: Fn(UnionResult<L::Value, R::Value>) -> T,
+{
+    type Point = P;
+
+    type Value = T;
+}
+
 #[cfg(test)]
 mod tests {
     use crate::union::Value;
@@ -427,325 +748,4 @@ mod tests {
             test(expected, left, right);
         }
     }
-}
-
-use std::cmp::{max, min, Ordering};
-
-use super::{DataPoint, Series};
-
-enum CursorState<T> {
-    NotPulled,
-    Single(T),
-    Pair { current: T, next: T },
-    Done,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-enum Cursor<T> {
-    Single(T),
-    Pair { fst: T, snd: T },
-}
-
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
-enum Value<T> {
-    Value(T),
-    Infinite,
-}
-
-impl<T> Cursor<T> {
-    fn fst(&self) -> &T {
-        match self {
-            Self::Single(v) | Self::Pair { fst: v, snd: _ } => v,
-        }
-    }
-
-    fn can_overlap(&self, other: &Self) -> bool
-    where
-        T: Ord,
-    {
-        let fst = max(self.fst(), other.fst());
-        let snd = min(self.snd(), other.snd());
-        snd > Value::Value(fst)
-    }
-
-    fn map<'a, F, U>(&'a self, f: F) -> Cursor<&'a U>
-    where
-        F: Fn(&'a T) -> &'a U,
-    {
-        match self {
-            Cursor::Single(v) => Cursor::Single(f(v)),
-            Cursor::Pair { fst, snd } => Cursor::Pair {
-                fst: f(fst),
-                snd: f(snd),
-            },
-        }
-    }
-
-    fn snd(&self) -> Value<&T> {
-        match self {
-            Self::Single(_) => Value::Infinite,
-            Self::Pair { fst: _, snd: v } => Value::Value(v),
-        }
-    }
-}
-
-struct CursorIterator<IT>
-where
-    IT: Iterator,
-{
-    iterator: IT,
-    state: CursorState<IT::Item>,
-}
-
-impl<IT> CursorIterator<IT>
-where
-    IT: Iterator,
-{
-    fn new(iterator: IT) -> Self {
-        Self {
-            iterator,
-            state: CursorState::NotPulled,
-        }
-    }
-}
-
-impl<IT> Iterator for CursorIterator<IT>
-where
-    IT: Iterator,
-    IT::Item: Copy,
-{
-    type Item = Cursor<IT::Item>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        loop {
-            match self.state {
-                CursorState::Done => return None,
-
-                CursorState::NotPulled => match self.iterator.next() {
-                    Some(current) => match self.iterator.next() {
-                        Some(next) => {
-                            let value = CursorState::Pair { current, next };
-                            self.state = value;
-                        }
-                        None => {
-                            self.state = CursorState::Single(current);
-                        }
-                    },
-                    None => {
-                        self.state = CursorState::Done;
-                    }
-                },
-
-                CursorState::Pair { current, next } => match self.iterator.next() {
-                    None => {
-                        self.state = CursorState::Single(next);
-                        return Some(Cursor::Pair {
-                            fst: current,
-                            snd: next,
-                        });
-                    }
-                    Some(next2) => {
-                        self.state = CursorState::Pair {
-                            current: next,
-                            next: next2,
-                        };
-
-                        return Some(Cursor::Pair {
-                            fst: current,
-                            snd: next,
-                        });
-                    }
-                },
-
-                CursorState::Single(single) => {
-                    self.state = CursorState::Done;
-                    return Some(Cursor::Single(single));
-                }
-            }
-        }
-    }
-}
-
-pub struct Union<P, L, R, F>
-where
-    R: Series<Point = P>,
-    L: Series<Point = P>,
-{
-    left: CursorIterator<L>,
-    right: CursorIterator<R>,
-    f: F,
-    state: UnionState<L::Item, R::Item>,
-}
-
-impl<P, L, R, F> Union<P, L, R, F>
-where
-    R: Series<Point = P>,
-    L: Series<Point = P>,
-{
-    pub(crate) fn new(left: L, right: R, f: F) -> Self {
-        Self {
-            left: CursorIterator::new(left),
-            right: CursorIterator::new(right),
-            f,
-            state: UnionState::default(),
-        }
-    }
-}
-
-#[derive(Default)]
-enum UnionState<L, R> {
-    #[default]
-    None,
-    LeftOnly(Cursor<L>),
-    RightOnly(Cursor<R>),
-    Disjointed {
-        left: Cursor<L>,
-        right: Cursor<R>,
-    },
-    Overlapped {
-        left: Cursor<L>,
-        right: Cursor<R>,
-    },
-}
-
-pub enum UnionResult<L, R> {
-    LeftOnly(L),
-    RightOnly(R),
-    Union { left: L, right: R },
-}
-
-impl<L, R, F, T, P> Iterator for Union<P, L, R, F>
-where
-    R: Series<Point = P>,
-    L: Series<Point = P>,
-    P: Copy + Ord + std::fmt::Debug,
-    R::Value: Copy + std::fmt::Debug,
-    L::Value: Copy + std::fmt::Debug,
-    F: Fn(UnionResult<L::Value, R::Value>) -> T,
-{
-    type Item = DataPoint<L::Point, T>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let get_union_state =
-            |left: Cursor<DataPoint<P, L::Value>>, right: Cursor<DataPoint<P, R::Value>>| {
-                if left.fst().point() == right.fst().point() {
-                    UnionState::Overlapped { left, right }
-                } else {
-                    UnionState::Disjointed { left, right }
-                }
-            };
-
-        self.state = {
-            match &self.state {
-                UnionState::None => match (self.left.next(), self.right.next()) {
-                    (None, None) => None,
-                    (Some(left), None) => Some(UnionState::LeftOnly(left)),
-                    (None, Some(right)) => Some(UnionState::RightOnly(right)),
-                    (Some(left), Some(right)) => Some(get_union_state(left, right)),
-                },
-                UnionState::Overlapped { left, right } => match left
-                    .map(|x| x.point())
-                    .snd()
-                    .cmp(&right.map(|x| x.point()).snd())
-                {
-                    Ordering::Less => self.left.next().map(|left| UnionState::Overlapped {
-                        left,
-                        right: right.to_owned(),
-                    }),
-                    Ordering::Greater => self.right.next().map(|right| UnionState::Overlapped {
-                        left: left.to_owned(),
-                        right,
-                    }),
-                    Ordering::Equal => self.left.next().and_then(|left| {
-                        self.right
-                            .next()
-                            .map(|right| UnionState::Overlapped { left, right })
-                    }),
-                },
-                UnionState::RightOnly(_) => self.right.next().map(UnionState::RightOnly),
-
-                UnionState::LeftOnly(_) => self.left.next().map(UnionState::LeftOnly),
-                UnionState::Disjointed { left, right }
-                    if left
-                        .map(|x| x.point())
-                        .can_overlap(&right.map(|x| x.point())) =>
-                {
-                    Some(UnionState::Overlapped {
-                        left: left.to_owned(),
-                        right: right.to_owned(),
-                    })
-                }
-                UnionState::Disjointed { left, right } => {
-                    if left.map(|x| x.point()).snd() < right.map(|x| x.point()).snd() {
-                        self.left
-                            .next()
-                            .map(|left| get_union_state(left, right.to_owned()))
-                    } else {
-                        self.right
-                            .next()
-                            .map(|right| get_union_state(left.to_owned(), right))
-                    }
-                }
-            }
-        }
-        .unwrap_or(UnionState::None);
-
-        match &self.state {
-            UnionState::None => None,
-            UnionState::LeftOnly(left) => {
-                let left = left.fst();
-                Some(DataPoint::new(
-                    left.point().to_owned(),
-                    (self.f)(UnionResult::LeftOnly(left.data().to_owned())),
-                ))
-            }
-            UnionState::RightOnly(right) => {
-                let right = right.fst();
-                Some(DataPoint::new(
-                    right.point().to_owned(),
-                    (self.f)(UnionResult::RightOnly(right.data().to_owned())),
-                ))
-            }
-            UnionState::Disjointed { left, right } => {
-                let left = left.fst();
-                let right = right.fst();
-                if left.point() < right.point() {
-                    Some(DataPoint::new(
-                        left.point().to_owned(),
-                        (self.f)(UnionResult::LeftOnly(left.data().to_owned())),
-                    ))
-                } else {
-                    Some(DataPoint::new(
-                        right.point().to_owned(),
-                        (self.f)(UnionResult::RightOnly(right.data().to_owned())),
-                    ))
-                }
-            }
-            UnionState::Overlapped { left, right } => {
-                let left = left.fst();
-                let right = right.fst();
-                Some(DataPoint::new(
-                    max(left.point(), right.point()).to_owned(),
-                    (self.f)(UnionResult::Union {
-                        left: left.data().to_owned(),
-                        right: right.data().to_owned(),
-                    }),
-                ))
-            }
-        }
-    }
-}
-
-impl<P, L, R, F, T> Series for Union<P, L, R, F>
-where
-    P: Copy + Ord + std::fmt::Debug,
-    L: Series<Point = P>,
-    R: Series<Point = P>,
-    R::Value: Copy + std::fmt::Debug,
-    L::Value: Copy + std::fmt::Debug,
-    F: Fn(UnionResult<L::Value, R::Value>) -> T,
-{
-    type Point = P;
-
-    type Value = T;
 }
