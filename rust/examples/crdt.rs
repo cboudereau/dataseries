@@ -1,35 +1,16 @@
+//! Eventual Consistency and Conflict Resolution
+//! 
+//! [`VersionedValue`] version field is used to identify the version of a value. 
+//! The relational order is used to take the max version on conflict when [`dataseries::UnionResult::Union`] occurs (this is why it is important to keep the version field to be the first defined field)
+//! When there is no conflict ([`dataseries::UnionResult::LeftOnly`] or [`dataseries::UnionResult::RightOnly`]), only the available [`VersionedValue`] is used
+//! 
 use dataseries::{DataPoint, Series};
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct VersionedValue<V, T> {
+    /// The first field should be the version field to make [`Ord`] macro compliant 
+    /// with the fact that only version is important to solve conflict and has to be checked first with the highest weight
     version: V,
     value: T,
-}
-
-impl<V, T> PartialOrd for VersionedValue<V, T>
-where
-    V: PartialOrd,
-    T: PartialOrd,
-{
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        match self.version.partial_cmp(&other.version) {
-            Some(core::cmp::Ordering::Equal) => self.value.partial_cmp(&other.value),
-            ord => ord,
-        }
-    }
-}
-
-impl<V, T> Ord for VersionedValue<V, T>
-where
-    V: Ord,
-    T: Ord,
-{
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        match self.version.cmp(&other.version) {
-            core::cmp::Ordering::Equal => self.value.cmp(&other.value),
-            ord => ord,
-        }
-    }
 }
 
 impl<V, T> VersionedValue<V, T>
@@ -89,6 +70,8 @@ where
     DataPoint::new(date, Some(VersionedValue::new(timestamp_micros, data)))
 }
 
+
+/// Interval can be encoded by using 2 Datapoints with a [`None`] last datapoint value to mark the end of each interval
 fn end<T>(date: Date) -> DataPoint<Date, Option<VersionedValue<TimestampMicros, T>>> {
     DataPoint::new(date, None)
 }
@@ -120,7 +103,8 @@ fn main() {
         datapoint(TimestampMicros::new(2), date(2023, 1, 7), 110),
         end(date(2023, 1, 9)),
     ]);
-
+    
+    // Solves conflict by taking always the maximum version
     let actual = s1
         .union(s2, |x| match x {
             dataseries::UnionResult::LeftOnly(x) | dataseries::UnionResult::RightOnly(x) => x,
@@ -143,4 +127,15 @@ fn main() {
         actual.as_slice(),
     );
     println!("done")
+}
+
+#[cfg(test)]
+mod test {
+    use crate::VersionedValue;
+
+    #[test]
+    fn test_version_ord_impl() {
+        assert!(VersionedValue::new(2, 1) > VersionedValue::new(1, 10));
+        assert!(VersionedValue::new(2, 2) > VersionedValue::new(2, 1));
+    }
 }
