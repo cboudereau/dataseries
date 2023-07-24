@@ -36,6 +36,19 @@ The ```VersionedValue``` defines the version (here a timestamp) to solve the con
 
 The below example uses TimestampMicros to version the data and solve conflict by taking the highest version of a value.
 ```rust
+fn datapoint<T>(timestamp_micros: TimestampMicros, date: Date, data: T) -> DataPoint<Date, Option<VersionedValue<TimestampMicros, T>>>
+where
+    T: std::marker::Copy,
+{
+    DataPoint::new(date, Some(VersionedValue::new(timestamp_micros, data)))
+}
+
+
+/// Interval can be encoded by using 2 Datapoints with a [`None`] last datapoint value to mark the end of each interval
+fn end<T>(date: Date) -> DataPoint<Date, Option<VersionedValue<TimestampMicros, T>>> {
+    DataPoint::new(date, None)
+}
+
 let s1 = dataseries::of_iter(vec![
     datapoint(TimestampMicros::new(1), date(2023, 1, 3), 50),
     end(date(2023, 1, 10)),
