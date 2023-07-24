@@ -21,6 +21,9 @@ Expected: |-----|-----|----|------|------|-
 
 ```
 
+## eventual consistency and conflict resolution for data-series
+The ```crdt``` example provides an example of the [conflict-free replicated data type](https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type) resolution based on data-series ```union``` function and ``VersionedValue`` type to solve conflict with a timestamp (any variable supporting [partially ordered set](https://en.wikipedia.org/wiki/Partially_ordered_set)) for rust and java.
+
 ## trade-offs
 
 ### interval representation
