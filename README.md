@@ -2,6 +2,25 @@
 
 data-series functions support for data-series and time-series.
 
+## functions
+
+### union
+
+Continuous time series union between 2 series. Left and right data can be absent (left and right only cases).
+
+```
+          1     3     10                 20
+    Left: |-----|-----|------------------|-
+          130   120   95                 160
+                           12     15
+   Right:                  |------|--------
+                           105    110
+          1     3     10   12     15     20
+Expected: |-----|-----|----|------|------|-
+          130,∅ 120,∅ 95,∅ 95,105 95,110 160,110
+
+```
+
 ## trade-offs
 
 ### interval representation
