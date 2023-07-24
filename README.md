@@ -45,7 +45,7 @@ Half-open interval                      Data-series (time-series/gauge)
 
 An interval can be defined by using 2 points (upper and lower bound) with an associated value but it can be difficult to index those 2 points in nosql databases (Global secondary index) or simply using a TSDB (timeseries database).
 
-Another approach consists of defining an intermediate model, a data-series with only one point and one value so that the datapoint feet really well with TSDB and is algorithm friendly. 
+Another approach consists of defining an intermediate model, a data-series with only one point and one value so that the datapoint fits really well with TSDB and is algorithm friendly. 
 
 It becomes also easy to avoid unwanted states; an interval can be defined with 2 points and the last point can be before the first one which is a bug in the domain. You can also define a point and a non negative offset which can work but requires more code.
 
