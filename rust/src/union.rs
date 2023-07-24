@@ -592,18 +592,14 @@ where
     }
 }
 
+#[derive(Default)]
 enum UnionState<L, R> {
+    #[default]
     None,
     LeftOnly(Cursor<L>),
     RightOnly(Cursor<R>),
     Disjointed { left: Cursor<L>, right: Cursor<R> },
     Overlapped { left: Cursor<L>, right: Cursor<R> },
-}
-
-impl<L, R> Default for UnionState<L, R> {
-    fn default() -> Self {
-        UnionState::None
-    }
 }
 
 pub enum UnionResult<L, R> {
@@ -661,10 +657,10 @@ where
                     }),
                 },
                 UnionState::RightOnly(_) => {
-                    self.right.next().map(|right| UnionState::RightOnly(right))
+                    self.right.next().map(UnionState::RightOnly)
                 }
 
-                UnionState::LeftOnly(_) => self.left.next().map(|left| UnionState::LeftOnly(left)),
+                UnionState::LeftOnly(_) => self.left.next().map(UnionState::LeftOnly),
                 UnionState::Disjointed { left, right }
                     if left
                         .map(|x| x.point())
