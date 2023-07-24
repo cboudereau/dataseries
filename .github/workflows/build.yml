@@ -14,8 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          sparse-checkout: rust
+      - name: cd
+        run: cd rust
       - name: debug
         run: ls -lha .
       - name: fmt
@@ -26,8 +26,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-      with:
-        sparse-checkout: rust
+    - name: cd
+      run: cd rust
     - name: build
       run: cargo build --verbose
     - name: run tests
