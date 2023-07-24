@@ -2,8 +2,7 @@ use std::time::Duration;
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use dataseries::{
-    {DataPoint, Series, UnionResult},
-    VersionedValue,
+    VersionedValue, {DataPoint, Series, UnionResult},
 };
 use rand::Rng;
 
@@ -47,8 +46,6 @@ fn union_simple_benchmark(c: &mut Criterion) {
     });
 }
 
-
-
 fn union_complex_benchmark(c: &mut Criterion) {
     c.bench_function("complex union + merge", |b| {
         b.iter(|| {
@@ -77,7 +74,6 @@ fn union_complex_benchmark(c: &mut Criterion) {
         })
     });
 }
-
 
 criterion_group! {
     name = benches;

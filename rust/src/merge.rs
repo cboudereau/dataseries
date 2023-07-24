@@ -69,10 +69,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        DataPoint,
-        VersionedValue, Series,
-    };
+    use crate::{DataPoint, Series, VersionedValue};
 
     #[test]
     fn test_merge_with_same_version_and_value() {

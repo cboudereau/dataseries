@@ -598,8 +598,14 @@ enum UnionState<L, R> {
     None,
     LeftOnly(Cursor<L>),
     RightOnly(Cursor<R>),
-    Disjointed { left: Cursor<L>, right: Cursor<R> },
-    Overlapped { left: Cursor<L>, right: Cursor<R> },
+    Disjointed {
+        left: Cursor<L>,
+        right: Cursor<R>,
+    },
+    Overlapped {
+        left: Cursor<L>,
+        right: Cursor<R>,
+    },
 }
 
 pub enum UnionResult<L, R> {
@@ -656,9 +662,7 @@ where
                             .map(|right| UnionState::Overlapped { left, right })
                     }),
                 },
-                UnionState::RightOnly(_) => {
-                    self.right.next().map(UnionState::RightOnly)
-                }
+                UnionState::RightOnly(_) => self.right.next().map(UnionState::RightOnly),
 
                 UnionState::LeftOnly(_) => self.left.next().map(UnionState::LeftOnly),
                 UnionState::Disjointed { left, right }
