@@ -16,6 +16,8 @@ jobs:
       - uses: actions/checkout@v3
         with:
           sparse-checkout: rust
+      - name: debug
+        run: ls -lha .
       - name: fmt
         run: cargo fmt --all -- --check
       - name: clippy
