@@ -20,7 +20,7 @@ jobs:
           sparse-checkout: |
             rust
       - name: debug
-        run: ls -lha ./rust
+        run: ls -lha .
       - name: fmt
         run: cargo fmt --all -- --check
       - name: clippy
