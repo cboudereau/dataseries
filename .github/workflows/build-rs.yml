@@ -1,0 +1,32 @@
+name: build-rs
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "*" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  lint-rs: 
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            rust
+      - name: fmt
+        run: cd rust && cargo fmt --all -- --check
+      - name: clippy
+        run: cd rust && cargo clippy --all-targets --all-features -- -D warnings
+  build-rs:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: build
+      run: cd rust && cargo build --verbose
+    - name: run tests
+      run: cd rust && cargo test --verbose

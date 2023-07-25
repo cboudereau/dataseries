@@ -1,13 +1,13 @@
 //! Eventual Consistency and Conflict Resolution
-//! 
-//! [`VersionedValue`] version field is used to identify the version of a value. 
+//!
+//! [`VersionedValue`] version field is used to identify the version of a value.
 //! The relational order is used to take the max version on conflict when [`dataseries::UnionResult::Union`] occurs (this is why it is important to keep the version field to be the first defined field)
 //! When there is no conflict ([`dataseries::UnionResult::LeftOnly`] or [`dataseries::UnionResult::RightOnly`]), only the available [`VersionedValue`] is used
-//! 
+//!
 use dataseries::{DataPoint, Series};
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct VersionedValue<V, T> {
-    /// The first field should be the version field to make [`Ord`] macro compliant 
+    /// The first field should be the version field to make [`Ord`] macro compliant
     /// with the fact that only version is important to solve conflict and has to be checked first with the highest weight
     version: V,
     value: T,
@@ -70,7 +70,6 @@ where
     DataPoint::new(date, Some(VersionedValue::new(timestamp_micros, data)))
 }
 
-
 /// Interval can be encoded by using 2 Datapoints with a [`None`] last datapoint value to mark the end of each interval
 fn end<T>(date: Date) -> DataPoint<Date, Option<VersionedValue<TimestampMicros, T>>> {
     DataPoint::new(date, None)
@@ -103,7 +102,7 @@ fn main() {
         datapoint(TimestampMicros::new(2), date(2023, 1, 7), 110),
         end(date(2023, 1, 9)),
     ]);
-    
+
     // Solves conflict by taking always the maximum version
     let actual = s1
         .union(s2, |x| match x {
