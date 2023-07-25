@@ -15,10 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          path: rust
-          sparse-checkout-cone-mode: false
-          sparse-checkout: |
-            rust
+          sparse-checkout: rust
       - name: debug
         run: ls -lha .
       - name: fmt
