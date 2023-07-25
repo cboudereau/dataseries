@@ -25,13 +25,13 @@ fn main() {
             dataseries::UnionResult::LeftOnly(_) | dataseries::UnionResult::RightOnly(_) => None,
             dataseries::UnionResult::Union { left, right } => Some((left, right)),
         })
-        .filter_map(|x| x.data().map(|d| DataPoint::new(x.point().to_owned(), d.to_owned())))
+        .filter_map(|x| {
+            x.data()
+                .map(|d| DataPoint::new(x.point().to_owned(), d.to_owned()))
+        })
         .collect::<Vec<_>>();
 
-    let expected = vec![
-        DataPoint::new(4, (50, 100)),
-        DataPoint::new(7, (50, 110)),
-    ];
+    let expected = vec![DataPoint::new(4, (50, 100)), DataPoint::new(7, (50, 110))];
 
     test(
         "simple union example using option",
