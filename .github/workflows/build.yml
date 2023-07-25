@@ -15,21 +15,18 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          path: ./
           sparse-checkout-cone-mode: false
           sparse-checkout: |
             rust
-      - name: debug
-        run: ls -lha .
       - name: fmt
-        run: cargo fmt --all -- --check
+        run: cd rust && cargo fmt --all -- --check
       - name: clippy
-        run: cargo clippy --all-targets --all-features -- -D warnings
+        run: cd rust && cargo clippy --all-targets --all-features -- -D warnings
   build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
     - name: build
-      run: cargo build --verbose
+      run: cd rust && cargo build --verbose
     - name: run tests
-      run: cargo test --verbose
+      run: cd rust && cargo test --verbose
