@@ -15,12 +15,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          path: .
+          path: test
           sparse-checkout-cone-mode: false
           sparse-checkout: |
             rust
       - name: debug
-        run: ls -lha .
+        run: ls -lha ./rust
       - name: fmt
         run: cargo fmt --all -- --check
       - name: clippy
