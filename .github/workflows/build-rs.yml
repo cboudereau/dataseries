@@ -49,6 +49,9 @@ jobs:
       - name: Coverage 
         run: cd rust && cargo run --manifest-path ./xtask/Cargo.toml -- coverage
 
+      - name: Debug
+        run: ls -lah rust/coverage
+
       - name: Upload to codecov.io
         uses: codecov/codecov-action@v3
         with:
