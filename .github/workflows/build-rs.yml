@@ -47,7 +47,7 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Coverage 
-        run: cd rust && cargo coverage
+        run: cd rust && cargo run --manifest-path ./xtask/Cargo.toml -- coverage
 
       - name: Upload to codecov.io
         uses: codecov/codecov-action@v3
