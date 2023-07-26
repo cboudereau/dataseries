@@ -16,9 +16,9 @@ jobs:
     - uses: actions/checkout@v3
     - uses: actions-rs/toolchain@v1
       with:
-          toolchain: stable
-          override: true
+        toolchain: stable
+        override: true
     - uses: katyo/publish-crates@v2
       with:
-          path: rust
-          registry-token: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        path: rust
+        registry-token: ${{ secrets.CARGO_REGISTRY_TOKEN }}
