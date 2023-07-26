@@ -50,7 +50,7 @@ jobs:
       - name: Run xtask coverage
         uses: actions-rs/cargo@v1
         with:
-          command: xtask
+          command: cd rust && xtask
           args: coverage
 
       - name: Upload to codecov.io
