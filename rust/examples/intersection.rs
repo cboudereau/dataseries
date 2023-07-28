@@ -23,7 +23,7 @@ fn main() {
     let actual = s1
         .union(s2, |x| match x {
             dataseries::UnionResult::LeftOnly(_) | dataseries::UnionResult::RightOnly(_) => None,
-            dataseries::UnionResult::Union { left, right } => Some((left, right)),
+            dataseries::UnionResult::Both { left, right } => Some((left, right)),
         })
         .filter_map(|x| {
             x.data()

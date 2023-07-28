@@ -8,7 +8,7 @@ fn to_option<L, R>(x: UnionResult<L, R>) -> (Option<L>, Option<R>) {
     match x {
         UnionResult::LeftOnly(left) => (Some(left), None),
         UnionResult::RightOnly(right) => (None, Some(right)),
-        UnionResult::Union { left, right } => (Some(left), Some(right)),
+        UnionResult::Both { left, right } => (Some(left), Some(right)),
     }
 }
 

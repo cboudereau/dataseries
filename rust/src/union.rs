@@ -169,7 +169,7 @@ enum UnionState<L, R> {
 pub enum UnionResult<L, R> {
     LeftOnly(L),
     RightOnly(R),
-    Union { left: L, right: R },
+    Both { left: L, right: R },
 }
 
 impl<L, R, F, T, P> Iterator for Union<P, L, R, F>
@@ -284,7 +284,7 @@ where
                 let right = right.fst();
                 Some(DataPoint::new(
                     max(left.point(), right.point()).to_owned(),
-                    (self.f)(UnionResult::Union {
+                    (self.f)(UnionResult::Both {
                         left: left.data().to_owned(),
                         right: right.data().to_owned(),
                     }),
@@ -391,7 +391,7 @@ mod tests {
                 match x {
                     UnionResult::LeftOnly(left) => (Some(left), None),
                     UnionResult::RightOnly(right) => (None, Some(right)),
-                    UnionResult::Union { left, right } => (Some(left), Some(right)),
+                    UnionResult::Both { left, right } => (Some(left), Some(right)),
                 }
             }
 
