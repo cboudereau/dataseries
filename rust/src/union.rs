@@ -4,8 +4,7 @@ use super::{DataPoint, Series};
 
 enum CursorState<T> {
     NotPulled,
-    Single(T),
-    Pair { current: T },
+    Entry { current: T },
     Done,
 }
 
@@ -92,7 +91,7 @@ where
             CursorState::NotPulled => match self.iterator.next() {
                 Some(current) => match self.iterator.next() {
                     Some(next) => {
-                        let value = CursorState::Pair { current: next };
+                        let value = CursorState::Entry { current: next };
                         self.state = value;
                         Some(Cursor::Pair {
                             fst: current,
@@ -100,7 +99,7 @@ where
                         })
                     }
                     None => {
-                        self.state = CursorState::Single(current);
+                        self.state = CursorState::Done;
                         Some(Cursor::Single(current))
                     }
                 },
@@ -110,13 +109,13 @@ where
                 }
             },
 
-            CursorState::Pair { current } => match self.iterator.next() {
+            CursorState::Entry { current } => match self.iterator.next() {
                 None => {
-                    self.state = CursorState::Single(current);
+                    self.state = CursorState::Done;
                     Some(Cursor::Single(current))
                 }
                 Some(next) => {
-                    self.state = CursorState::Pair { current: next };
+                    self.state = CursorState::Entry { current: next };
 
                     Some(Cursor::Pair {
                         fst: current,
@@ -124,11 +123,6 @@ where
                     })
                 }
             },
-
-            CursorState::Single(_) => {
-                self.state = CursorState::Done;
-                None
-            }
         }
     }
 }
