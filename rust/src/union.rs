@@ -94,7 +94,10 @@ where
                     Some(next) => {
                         let value = CursorState::Pair { current: next };
                         self.state = value;
-                        Some(Cursor::Pair { fst:current, snd: next })
+                        Some(Cursor::Pair {
+                            fst: current,
+                            snd: next,
+                        })
                     }
                     None => {
                         self.state = CursorState::Single(current);
@@ -103,7 +106,7 @@ where
                 },
                 None => {
                     self.state = CursorState::Done;
-                    None 
+                    None
                 }
             },
 
@@ -113,9 +116,7 @@ where
                     return Some(Cursor::Single(current));
                 }
                 Some(next) => {
-                    self.state = CursorState::Pair {
-                        current: next,
-                    };
+                    self.state = CursorState::Pair { current: next };
 
                     return Some(Cursor::Pair {
                         fst: current,
