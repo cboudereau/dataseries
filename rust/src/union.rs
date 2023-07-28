@@ -5,7 +5,7 @@ use super::{DataPoint, Series};
 enum CursorState<T> {
     NotPulled,
     Single(T),
-    Pair { current: T, next: T },
+    Pair { current: T },
     Done,
 }
 
@@ -86,50 +86,48 @@ where
     type Item = Cursor<IT::Item>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        loop {
-            match self.state {
-                CursorState::Done => return None,
+        match self.state {
+            CursorState::Done => None,
 
-                CursorState::NotPulled => match self.iterator.next() {
-                    Some(current) => match self.iterator.next() {
-                        Some(next) => {
-                            let value = CursorState::Pair { current, next };
-                            self.state = value;
-                        }
-                        None => {
-                            self.state = CursorState::Single(current);
-                        }
-                    },
-                    None => {
-                        self.state = CursorState::Done;
-                    }
-                },
-
-                CursorState::Pair { current, next } => match self.iterator.next() {
-                    None => {
-                        self.state = CursorState::Single(next);
-                        return Some(Cursor::Pair {
+            CursorState::NotPulled => match self.iterator.next() {
+                Some(current) => match self.iterator.next() {
+                    Some(next) => {
+                        let value = CursorState::Pair { current: next };
+                        self.state = value;
+                        Some(Cursor::Pair {
                             fst: current,
                             snd: next,
-                        });
+                        })
                     }
-                    Some(next2) => {
-                        self.state = CursorState::Pair {
-                            current: next,
-                            next: next2,
-                        };
-
-                        return Some(Cursor::Pair {
-                            fst: current,
-                            snd: next,
-                        });
+                    None => {
+                        self.state = CursorState::Single(current);
+                        Some(Cursor::Single(current))
                     }
                 },
-
-                CursorState::Single(single) => {
+                None => {
                     self.state = CursorState::Done;
-                    return Some(Cursor::Single(single));
+                    None
                 }
+            },
+
+            CursorState::Pair { current } => match self.iterator.next() {
+                None => {
+                    self.state = CursorState::Single(current);
+                    Some(Cursor::Single(current))
+                }
+                Some(next) => {
+                    self.state = CursorState::Pair { current: next };
+
+                    Some(Cursor::Pair {
+                        fst: current,
+                        snd: next,
+                    })
+                }
+            },
+
+            CursorState::Single(_) => {
+                self.state = CursorState::Done;
+                None
             }
         }
     }
