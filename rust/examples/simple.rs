@@ -24,7 +24,7 @@ fn main() {
         .union(s2, |x| match x {
             dataseries::UnionResult::LeftOnly(left) => (Some(left), None),
             dataseries::UnionResult::RightOnly(right) => (None, Some(right)),
-            dataseries::UnionResult::Union { left, right } => (Some(left), Some(right)),
+            dataseries::UnionResult::Both { left, right } => (Some(left), Some(right)),
         })
         .collect::<Vec<_>>();
 
