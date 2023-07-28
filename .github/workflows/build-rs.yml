@@ -3,9 +3,12 @@ name: build-rs
 on:
   push:
     branches: [ "main" ]
+    paths:
+        - 'rust/**'
   pull_request:
     branches: [ "*" ]
-
+    paths:
+        - 'rust/**'
 env:
   CARGO_TERM_COLOR: always
 
