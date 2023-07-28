@@ -87,7 +87,7 @@ where
 
     fn next(&mut self) -> Option<Self::Item> {
         match self.state {
-            CursorState::Done => return None,
+            CursorState::Done => None,
 
             CursorState::NotPulled => match self.iterator.next() {
                 Some(current) => match self.iterator.next() {
@@ -113,15 +113,15 @@ where
             CursorState::Pair { current } => match self.iterator.next() {
                 None => {
                     self.state = CursorState::Single(current);
-                    return Some(Cursor::Single(current));
+                    Some(Cursor::Single(current))
                 }
                 Some(next) => {
                     self.state = CursorState::Pair { current: next };
 
-                    return Some(Cursor::Pair {
+                    Some(Cursor::Pair {
                         fst: current,
                         snd: next,
-                    });
+                    })
                 }
             },
 
