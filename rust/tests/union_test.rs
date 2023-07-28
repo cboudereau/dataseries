@@ -4,7 +4,7 @@ fn map_any(x: UnionResult<i64, u32>) -> (Option<i64>, Option<u32>) {
     match x {
         UnionResult::LeftOnly(left) => (Some(left), None),
         UnionResult::RightOnly(right) => (None, Some(right)),
-        UnionResult::Union { left, right } => (Some(left), Some(right)),
+        UnionResult::Both { left, right } => (Some(left), Some(right)),
     }
 }
 

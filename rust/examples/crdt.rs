@@ -107,7 +107,7 @@ fn main() {
     let actual = s1
         .union(s2, |x| match x {
             dataseries::UnionResult::LeftOnly(x) | dataseries::UnionResult::RightOnly(x) => x,
-            dataseries::UnionResult::Union { left, right } => std::cmp::max(left, right),
+            dataseries::UnionResult::Both { left, right } => std::cmp::max(left, right),
         })
         .collect::<Vec<_>>();
 
