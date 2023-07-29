@@ -135,8 +135,9 @@ public final class Union<P extends Comparable<P>, R, L, T> implements Iterator<D
                 return UnionState.none();
             }
             case final UnionState.Overlapped<DataPoint<P, L>, DataPoint<P, R>> overlapped -> {
-                final var cmp = (Cursor.snd(overlapped.left.map(x -> x.point()))
-                        .compareTo(Cursor.snd(overlapped.right.map(x -> x.point()))));
+                final var leftPoint = overlapped.left.map(x -> x.point());
+                final var rightPoint = overlapped.right.map(x -> x.point());
+                final var cmp = Cursor.snd(leftPoint).compareTo(Cursor.snd(rightPoint));
                 if (cmp < 0) {
                     if (!this.left.hasNext())
                         return UnionState.none();
@@ -152,12 +153,13 @@ public final class Union<P extends Comparable<P>, R, L, T> implements Iterator<D
                 return UnionState.overlapped(this.left.next(), this.right.next());
             }
             case final UnionState.Disjointed<DataPoint<P, L>, DataPoint<P, R>> disjointed -> {
-                if (Cursor.canOverlap(disjointed.left.map(x -> x.point()), disjointed.right.map(x -> x.point()))) {
+                final var leftPoint = disjointed.left.map(x -> x.point());
+                final var rightPoint = disjointed.right.map(x -> x.point());
+                if (Cursor.canOverlap(leftPoint, rightPoint)) {
                     return UnionState.overlapped(disjointed.left, disjointed.right);
                 }
 
-                if (Cursor.snd(disjointed.left.map(x -> x.point()))
-                        .compareTo(Cursor.snd(disjointed.right.map(x -> x.point()))) < 0) {
+                if (Cursor.snd(leftPoint).compareTo(Cursor.snd(rightPoint)) < 0) {
                     if (!this.left.hasNext())
                         return UnionState.none();
                     return getUnionState(this.left.next(), disjointed.right);
