@@ -19,10 +19,10 @@ public sealed interface Cursor<T> permits Cursor.Single, Cursor.Pair {
 
     default <R> Cursor<R> map(final Function<T, R> f) {
         switch (this) {
-            case Single<T> s -> {
+            case final Single<T> s -> {
                 return Cursor.single(f.apply(s.v));
             }
-            case Pair<T> p -> {
+            case final Pair<T> p -> {
                 return Cursor.pair(f.apply(p.first), f.apply(p.second));
             }
         }
@@ -36,10 +36,10 @@ public sealed interface Cursor<T> permits Cursor.Single, Cursor.Pair {
 
     default T fst() {
         switch (this) {
-            case Single<T> s -> {
+            case final Single<T> s -> {
                 return s.v;
             }
-            case Pair<T> p -> {
+            case final Pair<T> p -> {
                 return p.first;
             }
         }
@@ -47,10 +47,10 @@ public sealed interface Cursor<T> permits Cursor.Single, Cursor.Pair {
 
     static <T extends Comparable<T>> Value<T> snd(final Cursor<T> x) {
         switch (x) {
-            case Single<T> s -> {
+            case final Single<T> s -> {
                 return Value.infinite();
             }
-            case Pair<T> p -> {
+            case final Pair<T> p -> {
                 return Value.fixed(p.second);
             }
         }

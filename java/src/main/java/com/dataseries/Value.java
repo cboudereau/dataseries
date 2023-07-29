@@ -24,7 +24,7 @@ public sealed interface Value<T extends Comparable<T>> extends Comparable<Value<
                     case Infinite<T> i2 -> {
                         return 0;
                     }
-                    case Fixed<?> v -> {
+                    case Fixed<T> v -> {
                         return 1;
                     }
                 }

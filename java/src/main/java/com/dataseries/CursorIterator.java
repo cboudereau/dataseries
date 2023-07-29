@@ -19,8 +19,8 @@ public class CursorIterator<T> implements Iterator<Cursor<T>> {
     private final Optional<Cursor<T>> getState() {
         if (this.state.isPresent()) {
             switch (this.state.get()) {
-                case Cursor.Single<T> single -> Optional.empty();
-                case Cursor.Pair<T> pair -> {
+                case final Cursor.Single<T> single -> Optional.empty();
+                case final Cursor.Pair<T> pair -> {
                     if (!this.iterator.hasNext())
                         return Optional.of(Cursor.single(pair.second()));
                     return Optional.of(Cursor.pair(pair.second(), this.iterator.next()));

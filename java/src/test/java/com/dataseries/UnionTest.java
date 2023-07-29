@@ -15,12 +15,12 @@ public class UnionTest {
     record Tuple<T1, T2>(T1 fst, T2 snd) {
     }
 
-    private void test(List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected,
+    private static void test(List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected,
             List<DataPoint<Integer, Integer>> left, List<DataPoint<Integer, Integer>> right) {
         test_ex(expected, left, right, true);
     }
 
-    private void test_ex(List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected,
+    private static void test_ex(List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected,
             List<DataPoint<Integer, Integer>> left, List<DataPoint<Integer, Integer>> right, Boolean canMirror) {
         {
             var iterator = new Union<>(right.iterator(), left.iterator(), (x -> x));
