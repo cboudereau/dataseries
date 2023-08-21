@@ -4,9 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
 import org.junit.jupiter.api.Test;
 
 import com.dataseries.Union.UnionResult;
@@ -23,15 +20,13 @@ public class UnionTest {
     private static void test_ex(List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected,
             List<DataPoint<Integer, Integer>> left, List<DataPoint<Integer, Integer>> right, Boolean canMirror) {
         {
-            var iterator = new Union<>(right.iterator(), left.iterator(), (x -> x));
-            Iterable<DataPoint<Integer, Union.UnionResult<Integer, Integer>>> iterable = () -> iterator;
-            var actual = StreamSupport.stream(iterable.spliterator(), false).collect(Collectors.toList()).toArray();
+            var union = new Union<>(right.iterator(), left.iterator(), (x -> x));
+            var actual = union.stream().toArray();
             assertArrayEquals(expected.toArray(), actual);
         }
         if (canMirror) {
-            var iterator = new Union<>(left.iterator(), right.iterator(), (x -> x));
-            Iterable<DataPoint<Integer, Union.UnionResult<Integer, Integer>>> iterable = () -> iterator;
-            var actual = StreamSupport.stream(iterable.spliterator(), false).collect(Collectors.toList()).toArray();
+            var union = new Union<>(left.iterator(), right.iterator(), (x -> x));
+            var actual = union.stream().toArray();
             var expectedArray = expected.stream().map(x -> switch (x.data()) {
                 case UnionResult.LeftOnly<Integer, Integer> leftOnly ->
                     new DataPoint<>(x.point(), UnionResult.rightOnly(leftOnly.left()));
@@ -39,7 +34,7 @@ public class UnionTest {
                     new DataPoint<>(x.point(), UnionResult.leftOnly(rightOnly.right()));
                 case UnionResult.Both<Integer, Integer> both ->
                     new DataPoint<>(x.point(), UnionResult.both(both.right(), both.left()));
-            }).collect(Collectors.toList()).toArray();
+            }).toArray();
             assertArrayEquals(expectedArray, actual);
         }
     }
