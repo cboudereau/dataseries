@@ -40,29 +40,29 @@ public class CursorIteratorTest {
         var actual = new CursorIterator<Integer>(empty.iterator());
         assertTrue(actual.hasNext());
         assertTrue(actual.hasNext());
-        
+
         assertEquals(Union.Cursor.pair(1, 2), actual.next());
         assertTrue(actual.hasNext());
         assertTrue(actual.hasNext());
-        
+
         assertEquals(Union.Cursor.single(2), actual.next());
         assertFalse(actual.hasNext());
         assertFalse(actual.hasNext());
-        
+
         assertThrows(NoSuchElementException.class, () -> actual.next());
     }
 
     @Test
-    public void cursorPairTest(){
+    public void cursorPairTest() {
         List<Integer> empty = List.of(1, 2, 3, 4, 5);
         var actual = new CursorIterator<Integer>(empty.iterator());
         assertTrue(actual.hasNext());
         assertTrue(actual.hasNext());
-        
+
         assertEquals(Cursor.pair(1, 2), actual.next());
         assertTrue(actual.hasNext());
         assertTrue(actual.hasNext());
-        
+
         assertEquals(Cursor.pair(2, 3), actual.next());
         assertTrue(actual.hasNext());
         assertTrue(actual.hasNext());
@@ -78,7 +78,7 @@ public class CursorIteratorTest {
         assertEquals(Cursor.single(5), actual.next());
         assertFalse(actual.hasNext());
         assertFalse(actual.hasNext());
-        
+
         assertThrows(NoSuchElementException.class, () -> actual.next());
 
     }
