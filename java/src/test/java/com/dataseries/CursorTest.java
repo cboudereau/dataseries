@@ -6,6 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
+import com.dataseries.Union.Cursor;
+import com.dataseries.Union.Value;
+
 public class CursorTest {
     @Test
     public void fstTest() {
