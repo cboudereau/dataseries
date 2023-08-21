@@ -4,36 +4,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
-public final class Union<P extends Comparable<P>, R, L, T> implements Iterator<DataPoint<P, T>> {
-
-    public static sealed interface UnionResult<L, R>
-            permits UnionResult.LeftOnly, UnionResult.RightOnly, UnionResult.Both {
-        public static record Both<L, R>(L left, R right) implements UnionResult<L, R> {
-
-        }
-
-        public static record LeftOnly<L, R>(L left) implements UnionResult<L, R> {
-        }
-
-        public static record RightOnly<L, R>(R right) implements UnionResult<L, R> {
-
-        }
-
-        public static <L, R> LeftOnly<L, R> leftOnly(L left) {
-            return new LeftOnly<L, R>(left);
-        }
-
-        public static <L, R> RightOnly<L, R> rightOnly(R right) {
-            return new RightOnly<L, R>(right);
-        }
-
-        public static <L, R> Both<L, R> both(L left, R right) {
-            return new Both<L, R>(left, right);
-        }
-    }
+final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoint<P, T>> {
 
     sealed interface Value<T extends Comparable<T>> extends Comparable<Value<T>> permits Value.Fixed, Value.Infinite {
 
@@ -259,10 +231,10 @@ public final class Union<P extends Comparable<P>, R, L, T> implements Iterator<D
     private Boolean hasNext = true;
     private UnionState<DataPoint<P, L>, DataPoint<P, R>> state = UnionState.none();
 
-    public Union(final Iterator<DataPoint<P, R>> right, final Iterator<DataPoint<P, L>> left,
+    public Union(final Iterator<DataPoint<P, L>> left, final Iterator<DataPoint<P, R>> right,
             final Function<UnionResult<L, R>, T> f) {
-        this.right = new CursorIterator<>(right);
         this.left = new CursorIterator<>(left);
+        this.right = new CursorIterator<>(right);
         this.f = f;
     }
 
@@ -378,32 +350,27 @@ public final class Union<P extends Comparable<P>, R, L, T> implements Iterator<D
             case final UnionState.None<DataPoint<P, L>, DataPoint<P, R>> none -> throw new NoSuchElementException();
             case final UnionState.LeftOnly<DataPoint<P, L>, DataPoint<P, R>> leftOnly -> {
                 final var left = leftOnly.left().fst();
-                return new DataPoint<>(left.point(), this.f.apply(UnionResult.leftOnly(left.data())));
+                return DataPoints.datapoint(left.point(), this.f.apply(UnionResult.leftOnly(left.data())));
             }
             case final UnionState.RightOnly<DataPoint<P, L>, DataPoint<P, R>> rightOnly -> {
                 final var right = rightOnly.right.fst();
-                return new DataPoint<>(right.point(), this.f.apply(UnionResult.rightOnly(right.data())));
+                return DataPoints.datapoint(right.point(), this.f.apply(UnionResult.rightOnly(right.data())));
             }
 
             case final UnionState.Disjointed<DataPoint<P, L>, DataPoint<P, R>> disjointed -> {
                 final var left = disjointed.left().fst();
                 final var right = disjointed.right().fst();
                 if (left.point().compareTo(right.point()) < 0) {
-                    return new DataPoint<>(left.point(), this.f.apply(UnionResult.leftOnly(left.data())));
+                    return DataPoints.datapoint(left.point(), this.f.apply(UnionResult.leftOnly(left.data())));
                 }
-                return new DataPoint<>(right.point(), this.f.apply(UnionResult.rightOnly(right.data())));
+                return DataPoints.datapoint(right.point(), this.f.apply(UnionResult.rightOnly(right.data())));
             }
             case final UnionState.Overlapped<DataPoint<P, L>, DataPoint<P, R>> overlapped -> {
                 final var left = overlapped.left().fst();
                 final var right = overlapped.right().fst();
                 final var point = (left.point().compareTo(right.point()) > 0) ? left.point() : right.point();
-                return new DataPoint<>(point, f.apply(UnionResult.both(left.data(), right.data())));
+                return DataPoints.datapoint(point, f.apply(UnionResult.both(left.data(), right.data())));
             }
         }
-    }
-
-    public final Stream<DataPoint<P, T>> stream() {
-        Iterable<DataPoint<P, T>> iterable = () -> this;
-        return StreamSupport.stream(iterable.spliterator(), false);
     }
 }
