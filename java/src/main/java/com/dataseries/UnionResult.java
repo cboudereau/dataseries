@@ -2,14 +2,14 @@ package com.dataseries;
 
 public sealed interface UnionResult<L, R>
         permits UnionResult.LeftOnly, UnionResult.RightOnly, UnionResult.Both {
-    public static record Both<L, R>(L left, R right) implements UnionResult<L, R> {
+    public static final record Both<L, R>(L left, R right) implements UnionResult<L, R> {
 
     }
 
-    public static record LeftOnly<L, R>(L left) implements UnionResult<L, R> {
+    public static final record LeftOnly<L, R>(L left) implements UnionResult<L, R> {
     }
 
-    public static record RightOnly<L, R>(R right) implements UnionResult<L, R> {
+    public static final record RightOnly<L, R>(R right) implements UnionResult<L, R> {
 
     }
 
