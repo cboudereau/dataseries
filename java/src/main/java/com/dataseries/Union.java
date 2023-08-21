@@ -3,6 +3,8 @@ package com.dataseries;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public final class Union<P extends Comparable<P>, R, L, T> implements Iterator<DataPoint<P, T>> {
     public static sealed interface UnionResult<L, R>
@@ -225,5 +227,10 @@ public final class Union<P extends Comparable<P>, R, L, T> implements Iterator<D
                 return new DataPoint<>(point, f.apply(UnionResult.both(left.data(), right.data())));
             }
         }
+    }
+
+    public final Stream<DataPoint<P, T>> stream() {
+        Iterable<DataPoint<P, T>> iterable = () -> this;
+        return StreamSupport.stream(iterable.spliterator(), false);
     }
 }
