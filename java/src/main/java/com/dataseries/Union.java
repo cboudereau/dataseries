@@ -9,6 +9,32 @@ import java.util.stream.StreamSupport;
 
 public final class Union<P extends Comparable<P>, R, L, T> implements Iterator<DataPoint<P, T>> {
 
+    public static sealed interface UnionResult<L, R>
+            permits UnionResult.LeftOnly, UnionResult.RightOnly, UnionResult.Both {
+        public static record Both<L, R>(L left, R right) implements UnionResult<L, R> {
+
+        }
+
+        public static record LeftOnly<L, R>(L left) implements UnionResult<L, R> {
+        }
+
+        public static record RightOnly<L, R>(R right) implements UnionResult<L, R> {
+
+        }
+
+        public static <L, R> LeftOnly<L, R> leftOnly(L left) {
+            return new LeftOnly<L, R>(left);
+        }
+
+        public static <L, R> RightOnly<L, R> rightOnly(R right) {
+            return new RightOnly<L, R>(right);
+        }
+
+        public static <L, R> Both<L, R> both(L left, R right) {
+            return new Both<L, R>(left, right);
+        }
+    }
+
     sealed interface Value<T extends Comparable<T>> extends Comparable<Value<T>> permits Value.Fixed, Value.Infinite {
 
         public static final record Fixed<T extends Comparable<T>>(T value) implements Value<T> {
@@ -177,32 +203,6 @@ public final class Union<P extends Comparable<P>, R, L, T> implements Iterator<D
 
             this.isPulled = false;
             return this.state.get();
-        }
-    }
-
-    public static sealed interface UnionResult<L, R>
-            permits UnionResult.LeftOnly, UnionResult.RightOnly, UnionResult.Both {
-        public static record Both<L, R>(L left, R right) implements UnionResult<L, R> {
-
-        }
-
-        public static record LeftOnly<L, R>(L left) implements UnionResult<L, R> {
-        }
-
-        public static record RightOnly<L, R>(R right) implements UnionResult<L, R> {
-
-        }
-
-        public static <L, R> LeftOnly<L, R> leftOnly(L left) {
-            return new LeftOnly<L, R>(left);
-        }
-
-        public static <L, R> RightOnly<L, R> rightOnly(R right) {
-            return new RightOnly<L, R>(right);
-        }
-
-        public static <L, R> Both<L, R> both(L left, R right) {
-            return new Both<L, R>(left, right);
         }
     }
 
