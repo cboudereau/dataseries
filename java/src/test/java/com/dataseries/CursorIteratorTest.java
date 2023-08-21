@@ -11,6 +11,9 @@ import java.util.NoSuchElementException;
 
 import org.junit.jupiter.api.Test;
 
+import com.dataseries.Union.CursorIterator;
+import com.dataseries.Union.Cursor;
+
 public class CursorIteratorTest {
     @Test
     public void emptyTest() {
@@ -26,7 +29,7 @@ public class CursorIteratorTest {
         var actual = new CursorIterator<Integer>(empty.iterator());
         assertTrue(actual.hasNext());
         assertTrue(actual.hasNext());
-        assertEquals(Cursor.single(1), actual.next());
+        assertEquals(Union.Cursor.single(1), actual.next());
         assertFalse(actual.hasNext());
         assertThrows(NoSuchElementException.class, () -> actual.next());
     }
@@ -38,11 +41,11 @@ public class CursorIteratorTest {
         assertTrue(actual.hasNext());
         assertTrue(actual.hasNext());
         
-        assertEquals(Cursor.pair(1, 2), actual.next());
+        assertEquals(Union.Cursor.pair(1, 2), actual.next());
         assertTrue(actual.hasNext());
         assertTrue(actual.hasNext());
         
-        assertEquals(Cursor.single(2), actual.next());
+        assertEquals(Union.Cursor.single(2), actual.next());
         assertFalse(actual.hasNext());
         assertFalse(actual.hasNext());
         
