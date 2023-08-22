@@ -350,26 +350,26 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
             case final UnionState.None<DataPoint<P, L>, DataPoint<P, R>> none -> throw new NoSuchElementException();
             case final UnionState.LeftOnly<DataPoint<P, L>, DataPoint<P, R>> leftOnly -> {
                 final var left = leftOnly.left().fst();
-                return DataPoints.datapoint(left.point(), this.f.apply(UnionResult.leftOnly(left.data())));
+                return Series.datapoint(left.point(), this.f.apply(UnionResult.leftOnly(left.data())));
             }
             case final UnionState.RightOnly<DataPoint<P, L>, DataPoint<P, R>> rightOnly -> {
                 final var right = rightOnly.right.fst();
-                return DataPoints.datapoint(right.point(), this.f.apply(UnionResult.rightOnly(right.data())));
+                return Series.datapoint(right.point(), this.f.apply(UnionResult.rightOnly(right.data())));
             }
 
             case final UnionState.Disjointed<DataPoint<P, L>, DataPoint<P, R>> disjointed -> {
                 final var left = disjointed.left().fst();
                 final var right = disjointed.right().fst();
                 if (left.point().compareTo(right.point()) < 0) {
-                    return DataPoints.datapoint(left.point(), this.f.apply(UnionResult.leftOnly(left.data())));
+                    return Series.datapoint(left.point(), this.f.apply(UnionResult.leftOnly(left.data())));
                 }
-                return DataPoints.datapoint(right.point(), this.f.apply(UnionResult.rightOnly(right.data())));
+                return Series.datapoint(right.point(), this.f.apply(UnionResult.rightOnly(right.data())));
             }
             case final UnionState.Overlapped<DataPoint<P, L>, DataPoint<P, R>> overlapped -> {
                 final var left = overlapped.left().fst();
                 final var right = overlapped.right().fst();
                 final var point = (left.point().compareTo(right.point()) > 0) ? left.point() : right.point();
-                return DataPoints.datapoint(point, f.apply(UnionResult.both(left.data(), right.data())));
+                return Series.datapoint(point, f.apply(UnionResult.both(left.data(), right.data())));
             }
         }
     }

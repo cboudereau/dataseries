@@ -5,7 +5,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import java.util.Iterator;
 
-public class DataPoints {
+public class Series {
     public static final <P, T> DataPoint<P, T> datapoint(final P point, final T data) {
         return new DataPoint<>(point, data);
     }
