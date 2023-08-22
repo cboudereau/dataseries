@@ -1,9 +1,6 @@
 package com.dataseries;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-
 import java.util.Optional;
 import java.util.List;
 import org.junit.jupiter.api.Test;
