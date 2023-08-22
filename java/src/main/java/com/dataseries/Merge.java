@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-final class Merge<P, T extends Comparable<T>> implements Iterator<DataPoint<P, T>> {
+final class Merge<P, T> implements Iterator<DataPoint<P, T>> {
     final Iterator<DataPoint<P, T>> series;
 
     private Boolean hasNext = true;
@@ -39,7 +39,7 @@ final class Merge<P, T extends Comparable<T>> implements Iterator<DataPoint<P, T
                 continue;
             }
 
-            if (this.current.map(x -> x.data().compareTo(next.data()) == 0).orElse(false)) {
+            if (this.current.map(x -> x.data().equals(next.data())).orElse(false)) {
                 continue;
             }
 

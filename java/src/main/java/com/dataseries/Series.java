@@ -13,7 +13,7 @@ public class Series {
         return () -> new Union<>(left.iterator(), right.iterator(), f);
     }
 
-    public static final <P, T extends Comparable<T>> IterableSeries<P, T> merge(
+    public static final <P, T> IterableSeries<P, T> merge(
             final Iterable<DataPoint<P, T>> series) {
         return () -> new Merge<>(series.iterator());
     }
