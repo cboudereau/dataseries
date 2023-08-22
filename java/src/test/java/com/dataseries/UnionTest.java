@@ -20,12 +20,12 @@ public class UnionTest {
             Boolean canMirror) {
         {
             var union = Series.union(left, right, (x -> x));
-            var actual = Series.stream(union).toArray();
+            var actual = union.stream().toArray();
             assertArrayEquals(expected.toArray(), actual);
         }
         if (canMirror) {
             var union = Series.union(right, left, (x -> x));
-            var actual = Series.stream(union).toArray();
+            var actual = union.stream().toArray();
 
             var expectedArray = expected.stream().map(x -> switch (x.data()) {
                 case UnionResult.LeftOnly<Integer, Integer> leftOnly ->
