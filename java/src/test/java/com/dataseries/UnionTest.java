@@ -19,12 +19,12 @@ public class UnionTest {
             List<DataPoint<Integer, Integer>> left, List<DataPoint<Integer, Integer>> right,
             Boolean canMirror) {
         {
-            var union = Series.union(left.iterator(), right.iterator(), (x -> x));
+            var union = Series.union(left, right, (x -> x));
             var actual = Series.stream(union).toArray();
             assertArrayEquals(expected.toArray(), actual);
         }
         if (canMirror) {
-            var union = Series.union(right.iterator(), left.iterator(), (x -> x));
+            var union = Series.union(right, left, (x -> x));
             var actual = Series.stream(union).toArray();
 
             var expectedArray = expected.stream().map(x -> switch (x.data()) {
