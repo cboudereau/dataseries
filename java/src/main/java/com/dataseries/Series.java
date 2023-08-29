@@ -2,7 +2,7 @@ package com.dataseries;
 
 import java.util.function.Function;
 
-public class Series {
+public abstract class Series {
     public static final <P, T> DataPoint<P, T> datapoint(final P point, final T data) {
         return new DataPoint<>(point, data);
     }
