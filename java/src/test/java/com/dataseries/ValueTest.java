@@ -16,5 +16,6 @@ public class ValueTest {
         assertTrue(Value.fixed(1).isLessThan(Value.infinite()));
         assertTrue(Value.fixed(2).isGreaterThan(Value.fixed(1)));
         assertTrue(Value.fixed(1).isLessThan(Value.fixed(2)));
+        assertFalse(Value.fixed(2).isLessThan(Value.fixed(1)));
     }
 }
