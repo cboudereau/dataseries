@@ -341,11 +341,6 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
         if (this.isPulled)
             return;
 
-        if (!this.hasNext) {
-            this.isPulled = true;
-            return;
-        }
-
         this.isPulled = true;
         this.state = getState();
         this.hasNext = !this.state.isNone();
