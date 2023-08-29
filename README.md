@@ -12,7 +12,7 @@ data-series functions support for data-series and time-series.
 
 ## java
 [![build](https://github.com/cboudereau/dataseries/workflows/build-java/badge.svg?branch=main&event=push)](https://github.com/cboudereau/dataseries/actions/workflows/build-java.yml?query=event%3Apush+branch%3Amain)
-[![codecov](https://codecov.io/gh/cboudereau/dataseries/branch/main/graph/badge.svg?token=UFSTKQG9FY&flag=java)](https://codecov.io/gh/cboudereau/dataseries)
+[![codecov](https://codecov.io/gh/cboudereau/dataseries/branch/main/graph/badge.svg?token=UFSTKQG9FY&flag=java)](https://app.codecov.io/gh/cboudereau/dataseries/tree/main/java)
 
 ## functions
 
