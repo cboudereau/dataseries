@@ -3,6 +3,9 @@ package com.dataseries;
 import java.util.function.Function;
 
 public abstract class Series {
+    private void Series() {
+    }
+
     public static final <P, T> DataPoint<P, T> datapoint(final P point, final T data) {
         return new DataPoint<>(point, data);
     }
