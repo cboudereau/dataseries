@@ -21,11 +21,6 @@ final class Merge<P, T> implements Iterator<DataPoint<P, T>> {
         if (this.isPulled)
             return;
 
-        if (!this.hasNext) {
-            this.isPulled = true;
-            return;
-        }
-
         this.isPulled = true;
         pullEntry();
     }
