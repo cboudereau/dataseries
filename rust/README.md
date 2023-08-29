@@ -2,7 +2,7 @@
 
 [![License:MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![build](https://github.com/cboudereau/dataseries/workflows/build-rs/badge.svg?branch=main&event=push)](https://github.com/cboudereau/dataseries/actions/workflows/build-rs.yml?query=event%3Apush+branch%3Amain)
-[![codecov](https://codecov.io/gh/cboudereau/dataseries/branch/main/graph/badge.svg?token=UFSTKQG9FY&flag=rust)](https://codecov.io/gh/cboudereau/dataseries)
+[![codecov](https://codecov.io/gh/cboudereau/dataseries/branch/main/graph/badge.svg?token=UFSTKQG9FY&flag=rust)](https://app.codecov.io/gh/cboudereau/dataseries/tree/main/rust)
 [![docs.rs](https://docs.rs/dataseries/badge.svg)](https://docs.rs/dataseries)
 [![crates.io](https://img.shields.io/crates/v/dataseries.svg)](https://crates.io/crates/dataseries)
 [![crates.io (recent)](https://img.shields.io/crates/dr/dataseries)](https://crates.io/crates/dataseries)
