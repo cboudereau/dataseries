@@ -90,7 +90,7 @@ where
     }
 }
 
-fn main() {
+fn test_resolve_conflicts() {
     let s1 = dataseries::of_iter(vec![
         datapoint(TimestampMicros::new(1), date(2023, 1, 3), 50),
         end(date(2023, 1, 10)),
@@ -104,12 +104,7 @@ fn main() {
     ]);
 
     // Solves conflict by taking always the maximum version
-    let actual = s1
-        .union(s2, |x| match x {
-            dataseries::UnionResult::LeftOnly(x) | dataseries::UnionResult::RightOnly(x) => x,
-            dataseries::UnionResult::Both { left, right } => std::cmp::max(left, right),
-        })
-        .collect::<Vec<_>>();
+    let actual = resolve_conflicts(s1, s2);
 
     let expected = vec![
         datapoint(TimestampMicros::new(1), date(2023, 1, 3), 50),
@@ -125,6 +120,56 @@ fn main() {
         expected.as_slice(),
         actual.as_slice(),
     );
+}
+
+fn test_no_conflict() {
+    let s1 = dataseries::of_iter(vec![
+        datapoint(TimestampMicros::new(1), date(2023, 1, 3), 50),
+        end(date(2023, 1, 10)),
+    ]);
+
+    let s2 = dataseries::of_iter(vec![
+        datapoint(TimestampMicros::new(2), date(2023, 1, 15), 100),
+        end(date(2023, 1, 20)),
+    ]);
+
+    // Solves conflict by taking always the maximum version
+    let actual = resolve_conflicts(s1, s2);
+
+    let expected = vec![
+        datapoint(TimestampMicros::new(1), date(2023, 1, 3), 50),
+        end(date(2023, 1, 10)),
+        datapoint(TimestampMicros::new(2), date(2023, 1, 15), 100),
+        end(date(2023, 1, 20)),
+    ];
+
+    test(
+        "no conflict to resolve test",
+        expected.as_slice(),
+        actual.as_slice(),
+    );
+}
+
+fn resolve_conflicts(
+    s1: dataseries::FromIteratorSeries<
+        std::vec::IntoIter<DataPoint<Date, Option<VersionedValue<TimestampMicros, i32>>>>,
+    >,
+    s2: dataseries::FromIteratorSeries<
+        std::vec::IntoIter<DataPoint<Date, Option<VersionedValue<TimestampMicros, i32>>>>,
+    >,
+) -> Vec<DataPoint<Date, Option<VersionedValue<TimestampMicros, i32>>>> {
+    let actual = s1
+        .union(s2, |x| match x {
+            dataseries::UnionResult::LeftOnly(x) | dataseries::UnionResult::RightOnly(x) => x,
+            dataseries::UnionResult::Both { left, right } => std::cmp::max(left, right),
+        })
+        .collect::<Vec<_>>();
+    actual
+}
+
+fn main() {
+    test_resolve_conflicts();
+    test_no_conflict();
     println!("done")
 }
 
