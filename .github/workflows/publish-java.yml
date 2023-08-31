@@ -3,6 +3,9 @@ name: publish-java
 on:
   release:
     types: [published]
+    paths:
+        - 'java/**'
+
   workflow_dispatch:
 
 jobs:
