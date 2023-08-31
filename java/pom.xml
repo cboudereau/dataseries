@@ -41,13 +41,48 @@
     </dependency>
   </dependencies>
 
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.5.0</version>
+        <configuration>
+          <additionalJOptions>
+            <additionalJOption>${argLine}</additionalJOption>
+          </additionalJOptions>
+        </configuration>
+        <reportSets>
+          <reportSet>
+            <id>aggregate</id>
+            <inherited>false</inherited>
+            <reports>
+              <report>aggregate</report>
+            </reports>
+          </reportSet>
+          <reportSet>
+            <id>default</id>
+            <reports>
+              <report>javadoc</report>
+              <!-- <report>test-javadoc</report> -->
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+    </plugins>
+  </reporting>
+
   <build>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>3.5.0</version>
-
+        <configuration>
+          <additionalJOptions>
+            <additionalJOption>${argLine}</additionalJOption>
+          </additionalJOptions>
+        </configuration>
         <executions>
           <execution>
             <id>attach-javadocs</id>
@@ -55,11 +90,6 @@
             <goals>
               <goal>aggregate</goal>
             </goals>
-            <configuration>
-              <additionalJOptions>
-                <additionalJOption>${argLine}</additionalJOption>
-              </additionalJOptions>
-            </configuration>
           </execution>
         </executions>
       </plugin>
