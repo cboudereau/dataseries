@@ -150,21 +150,19 @@ fn test_no_conflict() {
     );
 }
 
+type Events<T> = dataseries::FromIteratorSeries<
+    std::vec::IntoIter<DataPoint<Date, Option<VersionedValue<TimestampMicros, T>>>>,
+>;
+
 fn resolve_conflicts(
-    s1: dataseries::FromIteratorSeries<
-        std::vec::IntoIter<DataPoint<Date, Option<VersionedValue<TimestampMicros, i32>>>>,
-    >,
-    s2: dataseries::FromIteratorSeries<
-        std::vec::IntoIter<DataPoint<Date, Option<VersionedValue<TimestampMicros, i32>>>>,
-    >,
+    s1: Events<i32>,
+    s2: Events<i32>,
 ) -> Vec<DataPoint<Date, Option<VersionedValue<TimestampMicros, i32>>>> {
-    let actual = s1
-        .union(s2, |x| match x {
-            dataseries::UnionResult::LeftOnly(x) | dataseries::UnionResult::RightOnly(x) => x,
-            dataseries::UnionResult::Both { left, right } => std::cmp::max(left, right),
-        })
-        .collect::<Vec<_>>();
-    actual
+    s1.union(s2, |x| match x {
+        dataseries::UnionResult::LeftOnly(x) | dataseries::UnionResult::RightOnly(x) => x,
+        dataseries::UnionResult::Both { left, right } => std::cmp::max(left, right),
+    })
+    .collect::<Vec<_>>()
 }
 
 fn main() {
