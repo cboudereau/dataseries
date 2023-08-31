@@ -1,6 +1,11 @@
 name: publish-java
 
 on:
+  pull_request:
+    branches: [ "*" ]
+    paths:
+        - '.github/**'
+        - 'java/**'
   release:
     types: [published]
     paths:
