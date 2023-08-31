@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [ "*" ]
     paths:
-        - '.github/**'
+        - '.github/**-java.yml'
         - 'java/**'
   release:
     types: [published]
