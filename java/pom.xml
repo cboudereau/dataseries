@@ -6,10 +6,32 @@
 
   <groupId>com.dataseries</groupId>
   <artifactId>dataseries</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>0.1.3</version>
+  <packaging>jar</packaging>
+  <name>${project.groupId}:${project.artifactId}</name>
 
-  <name>dataseries</name>
-  <url>https://github.com/cboudereau/dataseries</url>
+  <description>data-series functions support for data-series and time-series.</description>
+  <url>https://github.com/cboudereau/dataseries/</url>
+
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>https://github.com/cboudereau/dataseries/blob/main/LICENSE</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <scm>
+    <url>https://github.com/cboudereau/dataseries/tree/main/java</url>
+  </scm>
+
+  <distributionManagement>
+    <repository>
+      <id>ossrh</id>
+      <name>Central Repository OSSRH</name>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -27,8 +49,58 @@
     </dependency>
   </dependencies>
 
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.5.0</version>
+        <configuration>
+          <additionalJOptions>
+            <additionalJOption>${argLine}</additionalJOption>
+          </additionalJOptions>
+        </configuration>
+        <reportSets>
+          <reportSet>
+            <id>aggregate</id>
+            <inherited>false</inherited>
+            <reports>
+              <report>aggregate</report>
+            </reports>
+          </reportSet>
+          <reportSet>
+            <id>default</id>
+            <reports>
+              <report>javadoc</report>
+              <!-- <report>test-javadoc</report> -->
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+    </plugins>
+  </reporting>
+
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.5.0</version>
+        <configuration>
+          <additionalJOptions>
+            <additionalJOption>${argLine}</additionalJOption>
+          </additionalJOptions>
+        </configuration>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <phase>site</phase>
+            <goals>
+              <goal>aggregate</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>

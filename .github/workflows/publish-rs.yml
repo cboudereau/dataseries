@@ -3,6 +3,9 @@ name: publish-rs
 on:
   release:
     types: [published]
+    paths:
+        - 'rust/**'
+
   workflow_dispatch:
 
 env:
