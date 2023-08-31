@@ -1,6 +1,6 @@
 [package]
 name = "dataseries"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2021"
 description = "dataseries support for rust"
 repository = "https://github.com/cboudereau/dataseries/tree/main/rust"
