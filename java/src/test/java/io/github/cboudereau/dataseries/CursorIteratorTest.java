@@ -1,4 +1,4 @@
-package com.dataseries;
+package io.github.cboudereau.dataseries;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -11,8 +11,8 @@ import java.util.NoSuchElementException;
 
 import org.junit.jupiter.api.Test;
 
-import com.dataseries.Union.CursorIterator;
-import com.dataseries.Union.Cursor;
+import io.github.cboudereau.dataseries.Union.CursorIterator;
+import io.github.cboudereau.dataseries.Union.Cursor;
 
 public class CursorIteratorTest {
     @Test

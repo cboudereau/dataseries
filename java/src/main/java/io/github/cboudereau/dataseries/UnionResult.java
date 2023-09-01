@@ -1,4 +1,4 @@
-package com.dataseries;
+package io.github.cboudereau.dataseries;
 
 /**
  * The Union result algebraic data type (sum type)
