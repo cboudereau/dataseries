@@ -3,7 +3,7 @@
 [![License:MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![build](https://github.com/cboudereau/dataseries/workflows/build-java/badge.svg?branch=main&event=push)](https://github.com/cboudereau/dataseries/actions/workflows/build-java.yml?query=event%3Apush+branch%3Amain)
 [![codecov](https://codecov.io/gh/cboudereau/dataseries/branch/main/graph/badge.svg?token=UFSTKQG9FY&flag=java)](https://app.codecov.io/gh/cboudereau/dataseries/tree/main/java)
-
+[![maven central](https://img.shields.io/maven-central/v/io.github.cboudereau.dataseries/dataseries.svg)](https://search.maven.org/artifact/io.github.cboudereau.dataseries/dataseries/)
 
 data-series functions support for data-series and time-series.
 
