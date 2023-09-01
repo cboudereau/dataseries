@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "main" ]
     paths:
-        - '.github/**'
+        - '.github/**-java.yml'
         - 'java/**'
   pull_request:
     branches: [ "*" ]
@@ -24,7 +24,7 @@ jobs:
         cache: 'maven'
     
     - name: Build with Maven
-      run: cd java && mvn -B package site --file pom.xml
+      run: cd java && mvn -B package --file pom.xml
     
     - name: Upload to codecov.io
       uses: codecov/codecov-action@v3
