@@ -1,4 +1,4 @@
-package com.dataseries;
+package io.github.cboudereau.dataseries;
 
 import java.util.function.Function;
 

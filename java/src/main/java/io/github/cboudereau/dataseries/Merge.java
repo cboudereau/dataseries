@@ -1,4 +1,4 @@
-package com.dataseries;
+package io.github.cboudereau.dataseries;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;

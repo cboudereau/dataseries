@@ -1,4 +1,4 @@
-package com.dataseries;
+package io.github.cboudereau.dataseries;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-import com.dataseries.Union.Cursor;
-import com.dataseries.Union.Value;
+import io.github.cboudereau.dataseries.Union.Cursor;
+import io.github.cboudereau.dataseries.Union.Value;
 
 public class CursorTest {
     @Test

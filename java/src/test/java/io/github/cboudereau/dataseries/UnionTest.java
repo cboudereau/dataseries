@@ -1,4 +1,4 @@
-package com.dataseries;
+package io.github.cboudereau.dataseries;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
