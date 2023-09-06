@@ -2,8 +2,12 @@ package io.github.cboudereau.dataseries;
 
 import java.util.function.Function;
 
+
 /**
  * The entrypoint of the api
+ * 
+ * {@snippet class=snippets.SamplesTest
+ * }
  */
 public class Series {
     private Series () {
