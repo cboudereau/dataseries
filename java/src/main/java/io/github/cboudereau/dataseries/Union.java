@@ -47,6 +47,10 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
                     }
                 }
             }
+
+            // FIXME : remove this when https://openjdk.org/jeps/433 will be ready (> 17,
+            // java 20 at least)
+            throw new UnsupportedOperationException();
         }
 
         default boolean isGreaterThan(final Value<T> o) {
@@ -82,6 +86,9 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
                     return Cursor.pair(f.apply(p.first), f.apply(p.second));
                 }
             }
+            // FIXME : remove this when https://openjdk.org/jeps/433 will be ready (> 17,
+            // java 20 at least)
+            throw new UnsupportedOperationException();
         }
 
         static <T extends Comparable<T>> Boolean canOverlap(final Cursor<T> left, final Cursor<T> right) {
@@ -99,6 +106,9 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
                     return p.first;
                 }
             }
+            // FIXME : remove this when https://openjdk.org/jeps/433 will be ready (> 17,
+            // java 20 at least)
+            throw new UnsupportedOperationException();
         }
 
         static <T extends Comparable<T>> Value<T> snd(final Cursor<T> x) {
@@ -110,6 +120,10 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
                     return Value.fixed(p.second);
                 }
             }
+
+            // FIXME : remove this when https://openjdk.org/jeps/433 will be ready (> 17,
+            // java 20 at least)
+            throw new UnsupportedOperationException();
         }
     }
 
@@ -312,6 +326,10 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
                 return getUnionState(disjointed.left, this.right.next());
             }
         }
+
+        // FIXME : remove this when https://openjdk.org/jeps/433 will be ready (> 17,
+        // java 20 at least)
+        throw new UnsupportedOperationException();
     }
 
     private final void pull() {
@@ -362,5 +380,8 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
                 return Series.datapoint(point, f.apply(UnionResult.both(left.data(), right.data())));
             }
         }
+        // FIXME : remove this when https://openjdk.org/jeps/433 will be ready (> 17,
+        // java 20 at least)
+        throw new UnsupportedOperationException();
     }
 }
