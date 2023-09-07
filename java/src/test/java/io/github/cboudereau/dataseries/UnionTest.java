@@ -10,24 +10,24 @@ public class UnionTest {
     record Tuple<T1, T2>(T1 fst, T2 snd) {
     }
 
-    private static void test(List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected,
-            List<DataPoint<Integer, Integer>> left, List<DataPoint<Integer, Integer>> right) {
+    private static void test(final List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected,
+            final List<DataPoint<Integer, Integer>> left, List<DataPoint<Integer, Integer>> right) {
         test_ex(expected, left, right, true);
     }
 
-    private static void test_ex(List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected,
-            List<DataPoint<Integer, Integer>> left, List<DataPoint<Integer, Integer>> right,
-            Boolean canMirror) {
+    private static void test_ex(final List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected,
+            final List<DataPoint<Integer, Integer>> left, List<DataPoint<Integer, Integer>> right,
+            final Boolean canMirror) {
         {
-            var union = Series.union(left, right, (x -> x));
-            var actual = union.stream().toArray();
+            final var union = Series.union(left, right, (x -> x));
+            final var actual = union.stream().toArray();
             assertArrayEquals(expected.toArray(), actual);
         }
         if (canMirror) {
-            var union = Series.union(right, left, (x -> x));
-            var actual = union.stream().toArray();
+            final var union = Series.union(right, left, (x -> x));
+            final var actual = union.stream().toArray();
 
-            var expectedArray = expected.stream().map(x -> switch (x.data()) {
+            final var expectedArray = expected.stream().map(x -> switch (x.data()) {
                 case UnionResult.LeftOnly<Integer, Integer> leftOnly ->
                     Series.datapoint(x.point(), UnionResult.rightOnly(leftOnly.left()));
                 case UnionResult.RightOnly<Integer, Integer> rightOnly ->
@@ -46,8 +46,8 @@ public class UnionTest {
 
     @Test
     public void singleEmptyTest() {
-        List<DataPoint<Integer, Integer>> left = List.of(Series.datapoint(1, 100));
-        List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List
+        final List<DataPoint<Integer, Integer>> left = List.of(Series.datapoint(1, 100));
+        final List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List
                 .of(Series.datapoint(1, new UnionResult.LeftOnly<Integer, Integer>(100)));
 
         test(expected, left, Collections.emptyList());
@@ -55,11 +55,11 @@ public class UnionTest {
 
     @Test
     public void singlesEmptyTest() {
-        List<DataPoint<Integer, Integer>> left = List.of(
+        final List<DataPoint<Integer, Integer>> left = List.of(
                 Series.datapoint(1, 100),
                 Series.datapoint(3, 100),
                 Series.datapoint(4, 100));
-        List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
+        final List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
                 Series.datapoint(1, new UnionResult.LeftOnly<Integer, Integer>(100)),
                 Series.datapoint(3, new UnionResult.LeftOnly<Integer, Integer>(100)),
                 Series.datapoint(4, new UnionResult.LeftOnly<Integer, Integer>(100)));
@@ -69,11 +69,11 @@ public class UnionTest {
 
     @Test
     public void singleSingleTest() {
-        List<DataPoint<Integer, Integer>> left = List.of(
+        final List<DataPoint<Integer, Integer>> left = List.of(
                 Series.datapoint(2, 120));
-        List<DataPoint<Integer, Integer>> right = List.of(
+        final List<DataPoint<Integer, Integer>> right = List.of(
                 Series.datapoint(1, 100));
-        List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
+        final List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
                 Series.datapoint(1, new UnionResult.RightOnly<Integer, Integer>(100)),
                 Series.datapoint(2, new UnionResult.Both<Integer, Integer>(120, 100)));
 
@@ -82,11 +82,11 @@ public class UnionTest {
 
     @Test
     public void singleSingleFullOverlapTest() {
-        List<DataPoint<Integer, Integer>> left = List.of(
+        final List<DataPoint<Integer, Integer>> left = List.of(
                 Series.datapoint(1, 120));
-        List<DataPoint<Integer, Integer>> right = List.of(
+        final List<DataPoint<Integer, Integer>> right = List.of(
                 Series.datapoint(1, 100));
-        List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
+        final List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
                 Series.datapoint(1, new UnionResult.Both<Integer, Integer>(120, 100)));
 
         test(expected, left, right);
@@ -94,9 +94,9 @@ public class UnionTest {
 
     @Test
     public void singlePairTest() {
-        var left = List.of(Series.datapoint(10, 130));
-        var right = List.of(Series.datapoint(1, 120), Series.datapoint(5, 200));
-        List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
+        final var left = List.of(Series.datapoint(10, 130));
+        final var right = List.of(Series.datapoint(1, 120), Series.datapoint(5, 200));
+        final List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
                 Series.datapoint(1, new UnionResult.RightOnly<Integer, Integer>(120)),
                 Series.datapoint(5, new UnionResult.RightOnly<Integer, Integer>(200)),
                 Series.datapoint(10, new UnionResult.Both<Integer, Integer>(130, 200)));
@@ -105,9 +105,9 @@ public class UnionTest {
 
     @Test
     public void singlePairTest2() {
-        var left = List.of(Series.datapoint(2, 120));
-        var right = List.of(Series.datapoint(1, 100), Series.datapoint(3, 150));
-        List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
+        final var left = List.of(Series.datapoint(2, 120));
+        final var right = List.of(Series.datapoint(1, 100), Series.datapoint(3, 150));
+        final List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
                 Series.datapoint(1, new UnionResult.RightOnly<Integer, Integer>(100)),
                 Series.datapoint(2, new UnionResult.Both<Integer, Integer>(120, 100)),
                 Series.datapoint(3, new UnionResult.Both<Integer, Integer>(120, 150)));
@@ -116,9 +116,9 @@ public class UnionTest {
 
     @Test
     public void singleMultiple3Test() {
-        var left = List.of(Series.datapoint(1, 120));
-        var right = List.of(Series.datapoint(2, 100), Series.datapoint(5, 150));
-        List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
+        final var left = List.of(Series.datapoint(1, 120));
+        final var right = List.of(Series.datapoint(2, 100), Series.datapoint(5, 150));
+        final List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
                 Series.datapoint(1, new UnionResult.LeftOnly<Integer, Integer>(120)),
                 Series.datapoint(2, new UnionResult.Both<Integer, Integer>(120, 100)),
                 Series.datapoint(5, new UnionResult.Both<Integer, Integer>(120, 150)));
@@ -127,10 +127,10 @@ public class UnionTest {
 
     @Test
     public void partialIntersectionTest() {
-        var left = List.of(Series.datapoint(1, 130), Series.datapoint(3, 120),
+        final var left = List.of(Series.datapoint(1, 130), Series.datapoint(3, 120),
                 Series.datapoint(10, 95));
-        var right = List.of(Series.datapoint(2, 120), Series.datapoint(10, 95));
-        List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
+        final var right = List.of(Series.datapoint(2, 120), Series.datapoint(10, 95));
+        final List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
                 Series.datapoint(1, new UnionResult.LeftOnly<Integer, Integer>(130)),
                 Series.datapoint(2, new UnionResult.Both<Integer, Integer>(130, 120)),
                 Series.datapoint(3, new UnionResult.Both<Integer, Integer>(120, 120)),
@@ -140,10 +140,10 @@ public class UnionTest {
 
     @Test
     public void segmentedFullIntersectionTest() {
-        var left = List.of(Series.datapoint(1, 130), Series.datapoint(3, 120),
+        final var left = List.of(Series.datapoint(1, 130), Series.datapoint(3, 120),
                 Series.datapoint(10, 95));
-        var right = List.of(Series.datapoint(3, 120), Series.datapoint(10, 95));
-        List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
+        final var right = List.of(Series.datapoint(3, 120), Series.datapoint(10, 95));
+        final List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
                 Series.datapoint(1, new UnionResult.LeftOnly<Integer, Integer>(130)),
                 Series.datapoint(3, new UnionResult.Both<Integer, Integer>(120, 120)),
                 Series.datapoint(10, new UnionResult.Both<Integer, Integer>(95, 95)));
@@ -152,9 +152,9 @@ public class UnionTest {
 
     @Test
     public void pairPairTest() {
-        var left = List.of(Series.datapoint(10, 130), Series.datapoint(12, 140));
-        var right = List.of(Series.datapoint(1, 120), Series.datapoint(5, 200));
-        List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
+        final var left = List.of(Series.datapoint(10, 130), Series.datapoint(12, 140));
+        final var right = List.of(Series.datapoint(1, 120), Series.datapoint(5, 200));
+        final List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
                 Series.datapoint(1, new UnionResult.RightOnly<Integer, Integer>(120)),
                 Series.datapoint(5, new UnionResult.RightOnly<Integer, Integer>(200)),
                 Series.datapoint(10, new UnionResult.Both<Integer, Integer>(130, 200)),
@@ -164,11 +164,11 @@ public class UnionTest {
 
     @Test
     public void multipleFirstTest() {
-        var left = List.of(Series.datapoint(1, 130), Series.datapoint(2, 140),
+        final var left = List.of(Series.datapoint(1, 130), Series.datapoint(2, 140),
                 Series.datapoint(5, 150),
                 Series.datapoint(20, 160));
-        var right = List.of(Series.datapoint(30, 120));
-        List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
+        final var right = List.of(Series.datapoint(30, 120));
+        final List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
                 Series.datapoint(1, new UnionResult.LeftOnly<Integer, Integer>(130)),
                 Series.datapoint(2, new UnionResult.LeftOnly<Integer, Integer>(140)),
                 Series.datapoint(5, new UnionResult.LeftOnly<Integer, Integer>(150)),
@@ -179,12 +179,12 @@ public class UnionTest {
 
     @Test
     public void multipleIntersectionTest() {
-        var left = List.of(Series.datapoint(1, 130), Series.datapoint(20, 160));
-        var right = List.of(Series.datapoint(3, 120), Series.datapoint(5, 110),
+        final var left = List.of(Series.datapoint(1, 130), Series.datapoint(20, 160));
+        final var right = List.of(Series.datapoint(3, 120), Series.datapoint(5, 110),
                 Series.datapoint(6, 100),
                 Series.datapoint(10, 90), Series.datapoint(15, 190),
                 Series.datapoint(19, 180));
-        List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
+        final List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
                 Series.datapoint(1, new UnionResult.LeftOnly<Integer, Integer>(130)),
                 Series.datapoint(3, new UnionResult.Both<Integer, Integer>(130, 120)),
                 Series.datapoint(5, new UnionResult.Both<Integer, Integer>(130, 110)),
@@ -198,12 +198,12 @@ public class UnionTest {
 
     @Test
     public void multipleIntersectionsOverlapTest() {
-        var left = List.of(Series.datapoint(1, 130), Series.datapoint(20, 160));
-        var right = List.of(Series.datapoint(3, 120), Series.datapoint(5, 110),
+        final var left = List.of(Series.datapoint(1, 130), Series.datapoint(20, 160));
+        final var right = List.of(Series.datapoint(3, 120), Series.datapoint(5, 110),
                 Series.datapoint(6, 100),
                 Series.datapoint(10, 90), Series.datapoint(15, 190),
                 Series.datapoint(20, 180));
-        List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
+        final List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
                 Series.datapoint(1, new UnionResult.LeftOnly<Integer, Integer>(130)),
                 Series.datapoint(3, new UnionResult.Both<Integer, Integer>(130, 120)),
                 Series.datapoint(5, new UnionResult.Both<Integer, Integer>(130, 110)),
@@ -216,14 +216,14 @@ public class UnionTest {
 
     @Test
     public void multipleIntersectionsOverlapsTest() {
-        var left = List.of(Series.datapoint(1, 130), Series.datapoint(3, 120),
+        final var left = List.of(Series.datapoint(1, 130), Series.datapoint(3, 120),
                 Series.datapoint(10, 95),
                 Series.datapoint(20, 160));
-        var right = List.of(Series.datapoint(3, 105), Series.datapoint(5, 110),
+        final var right = List.of(Series.datapoint(3, 105), Series.datapoint(5, 110),
                 Series.datapoint(6, 100),
                 Series.datapoint(10, 90), Series.datapoint(15, 190),
                 Series.datapoint(20, 180));
-        List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
+        final List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
                 Series.datapoint(1, new UnionResult.LeftOnly<Integer, Integer>(130)),
                 Series.datapoint(3, new UnionResult.Both<Integer, Integer>(120, 105)),
                 Series.datapoint(5, new UnionResult.Both<Integer, Integer>(120, 110)),
@@ -236,11 +236,11 @@ public class UnionTest {
 
     @Test
     public void multipleNoIntersectionTest() {
-        var left = List.of(Series.datapoint(1, 130), Series.datapoint(3, 120),
+        final var left = List.of(Series.datapoint(1, 130), Series.datapoint(3, 120),
                 Series.datapoint(10, 95),
                 Series.datapoint(20, 160));
-        var right = List.of(Series.datapoint(12, 105), Series.datapoint(15, 110));
-        List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
+        final var right = List.of(Series.datapoint(12, 105), Series.datapoint(15, 110));
+        final List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
                 Series.datapoint(1, new UnionResult.LeftOnly<Integer, Integer>(130)),
                 Series.datapoint(3, new UnionResult.LeftOnly<Integer, Integer>(120)),
                 Series.datapoint(10, new UnionResult.LeftOnly<Integer, Integer>(95)),
@@ -252,13 +252,13 @@ public class UnionTest {
 
     @Test
     public void fullIntersectionTest() {
-        var left = List.of(Series.datapoint(1, 130), Series.datapoint(3, 120),
+        final var left = List.of(Series.datapoint(1, 130), Series.datapoint(3, 120),
                 Series.datapoint(10, 95),
                 Series.datapoint(20, 160));
-        var right = List.of(Series.datapoint(1, 130), Series.datapoint(3, 120),
+        final var right = List.of(Series.datapoint(1, 130), Series.datapoint(3, 120),
                 Series.datapoint(10, 95),
                 Series.datapoint(20, 160));
-        List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
+        final List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
                 Series.datapoint(1, new UnionResult.Both<Integer, Integer>(130, 130)),
                 Series.datapoint(3, new UnionResult.Both<Integer, Integer>(120, 120)),
                 Series.datapoint(10, new UnionResult.Both<Integer, Integer>(95, 95)),
@@ -268,14 +268,14 @@ public class UnionTest {
 
     @Test
     public void fullIntersection2Test() {
-        var left = List.of(Series.datapoint(-15, 130), Series.datapoint(-1, 130),
+        final var left = List.of(Series.datapoint(-15, 130), Series.datapoint(-1, 130),
                 Series.datapoint(1, 130),
                 Series.datapoint(3, 120), Series.datapoint(10, 95),
                 Series.datapoint(20, 160));
-        var right = List.of(Series.datapoint(1, 130), Series.datapoint(3, 120),
+        final var right = List.of(Series.datapoint(1, 130), Series.datapoint(3, 120),
                 Series.datapoint(10, 95),
                 Series.datapoint(20, 160));
-        List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
+        final List<DataPoint<Integer, UnionResult<Integer, Integer>>> expected = List.of(
                 Series.datapoint(-15, new UnionResult.LeftOnly<Integer, Integer>(130)),
                 Series.datapoint(-1, new UnionResult.LeftOnly<Integer, Integer>(130)),
                 Series.datapoint(1, new UnionResult.Both<Integer, Integer>(130, 130)),

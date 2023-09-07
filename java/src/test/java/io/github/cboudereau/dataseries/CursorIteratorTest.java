@@ -17,16 +17,16 @@ import io.github.cboudereau.dataseries.Union.Cursor;
 public class CursorIteratorTest {
     @Test
     public void emptyTest() {
-        List<Integer> empty = Collections.emptyList();
-        var actual = new CursorIterator<Integer>(empty.iterator());
+        final List<Integer> empty = Collections.emptyList();
+        final var actual = new CursorIterator<Integer>(empty.iterator());
         assertFalse(actual.hasNext());
         assertThrows(NoSuchElementException.class, () -> actual.next());
     }
 
     @Test
     public void singleCursorTest() {
-        List<Integer> empty = List.of(1);
-        var actual = new CursorIterator<Integer>(empty.iterator());
+        final List<Integer> empty = List.of(1);
+        final var actual = new CursorIterator<Integer>(empty.iterator());
         assertTrue(actual.hasNext());
         assertTrue(actual.hasNext());
         assertEquals(Union.Cursor.single(1), actual.next());
@@ -36,8 +36,8 @@ public class CursorIteratorTest {
 
     @Test
     public void simplePairCursorTest() {
-        List<Integer> empty = List.of(1, 2);
-        var actual = new CursorIterator<Integer>(empty.iterator());
+        final List<Integer> empty = List.of(1, 2);
+        final var actual = new CursorIterator<Integer>(empty.iterator());
         assertTrue(actual.hasNext());
         assertTrue(actual.hasNext());
 
@@ -54,8 +54,8 @@ public class CursorIteratorTest {
 
     @Test
     public void cursorPairTest() {
-        List<Integer> empty = List.of(1, 2, 3, 4, 5);
-        var actual = new CursorIterator<Integer>(empty.iterator());
+        final List<Integer> empty = List.of(1, 2, 3, 4, 5);
+        final var actual = new CursorIterator<Integer>(empty.iterator());
         assertTrue(actual.hasNext());
         assertTrue(actual.hasNext());
 
