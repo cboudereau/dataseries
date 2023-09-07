@@ -4,9 +4,12 @@ import java.util.function.Function;
 
 
 /**
- * The entrypoint of the api
+ * The entrypoint of the api, here is a simple usage of the union dataseries : 
+ * {@snippet class=snippets.SimpleTest
+ * }
  * 
- * {@snippet class=snippets.SamplesTest
+ * Convert an Union to an Intersection example : 
+ * {@snippet class=snippets.IntersectionTest
  * }
  */
 public class Series {
