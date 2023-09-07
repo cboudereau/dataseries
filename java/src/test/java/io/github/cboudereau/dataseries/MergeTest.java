@@ -35,7 +35,8 @@ public class MergeTest {
                 Series.datapoint(5, Optional.of(10)),
                 Series.datapoint(10, Optional.empty()));
 
-        final var expected = List.of(Series.datapoint(1, Optional.of(10)), Series.datapoint(10, Optional.empty())).toArray();
+        final var expected = List.of(Series.datapoint(1, Optional.of(10)), Series.datapoint(10, Optional.empty()))
+                .toArray();
 
         final var actual = Series.merge(x).stream().toArray();
         assertArrayEquals(expected, actual);
