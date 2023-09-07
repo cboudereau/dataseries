@@ -11,6 +11,11 @@ import java.util.function.Function;
  * Convert an Union to an Intersection example : 
  * {@snippet class=snippets.IntersectionTest
  * }
+ * 
+ * And a more complex example using crdt strategy to merge conflicts between 2 dataseries by using union
+ * 
+ * {@snippet class=snippets.CrdtTest
+ * }
  */
 public class Series {
     private Series () {
@@ -25,7 +30,7 @@ public class Series {
      * @param data the data
      * @return a datapoint
      */
-    public static final <P, T> DataPoint<P, T> datapoint(final P point, final T data) {
+    public static final <P extends Comparable<P>, T> DataPoint<P, T> datapoint(final P point, final T data) {
         return new DataPoint<>(point, data);
     }
 
