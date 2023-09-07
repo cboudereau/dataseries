@@ -7,7 +7,11 @@ import java.util.function.Function;
  * The entrypoint of the api, here is a simple usage of the union dataseries : 
  * {@snippet class=snippets.SimpleTest
  * }
- * 
+ *
+ * Remove duplicates from contiguous data :
+ * {@snippet class=snippets.MergeTest
+ * }
+ *  
  * Convert an Union to an Intersection example : 
  * {@snippet class=snippets.IntersectionTest
  * }
