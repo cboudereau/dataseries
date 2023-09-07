@@ -69,7 +69,8 @@
         <version>3.5.0</version>
         <configuration>
           <additionalJOptions>
-            <additionalJOption>${argLine} ${snippetPath}</additionalJOption>
+            <additionalJOption>${argLine}</additionalJOption>
+            <additionalJOption>${snippetPath}</additionalJOption>
           </additionalJOptions>
         </configuration>
         <reportSets>
@@ -145,7 +146,8 @@
         <version>3.5.0</version>
         <configuration>
           <additionalJOptions>
-            <additionalJOption>${argLine} ${snippetPath}</additionalJOption>
+            <additionalJOption>${argLine}</additionalJOption>
+            <additionalJOption>${snippetPath}</additionalJOption>
           </additionalJOptions>
         </configuration>
         <executions>
