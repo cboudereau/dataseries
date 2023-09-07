@@ -84,6 +84,9 @@ public class CrdtTest {
                         }
                     }
                 }
+                // FIXME : remove this when https://openjdk.org/jeps/433 will be ready (> 17,
+                // java 20 at least)
+                throw new UnsupportedOperationException();
             }
         }
 
@@ -187,6 +190,9 @@ public class CrdtTest {
 
                 return b.left();
             }
+            // FIXME : remove this when https://openjdk.org/jeps/433 will be ready (> 17,
+            // java 20 at least)
+            throw new UnsupportedOperationException();
         }
     }
 }

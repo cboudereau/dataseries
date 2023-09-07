@@ -40,6 +40,9 @@ public class IntersectionTest {
             case UnionResult.Both<L, R> both -> {
                 return Optional.of(new Tuple<L, R>(both.left(), both.right()));
             }
+            // FIXME : remove this when https://openjdk.org/jeps/433 will be ready (> 17,
+            // java 20 at least)
+            throw new UnsupportedOperationException();
         }
     }
 }
