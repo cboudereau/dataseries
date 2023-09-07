@@ -5,6 +5,7 @@
 //!
 //! examples :
 //! - __simple__ : a basic usage of data-series union.
+//! - __merge__ : a merge example to remove duplicates.
 //! - __intersection__ : a simple intersection implementation based on union.
 //! - __crdt__ : conflict-free replicated data type implementation of time-series updates to merge.
 //!
