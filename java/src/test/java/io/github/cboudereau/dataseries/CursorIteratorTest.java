@@ -17,7 +17,7 @@ import io.github.cboudereau.dataseries.Union.Cursor;
 public class CursorIteratorTest {
     @Test
     public void emptyTest() {
-        List<Integer> empty = Collections.emptyList();
+        final List<Integer> empty = Collections.emptyList();
         final var actual = new CursorIterator<Integer>(empty.iterator());
         assertFalse(actual.hasNext());
         assertThrows(NoSuchElementException.class, () -> actual.next());

@@ -47,8 +47,8 @@ final class Merge<P, T> implements Iterator<DataPoint<P, T>> {
             this.entry = this.current;
             this.current = Optional.empty();
             return;
-        } 
-            
+        }
+
         this.hasNext = false;
         this.entry = Optional.empty();
         return;

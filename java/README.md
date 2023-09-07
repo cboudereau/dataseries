@@ -118,6 +118,7 @@ The ```crdt``` example provides an example of the conflict-free replicated data 
 The ```VersionedValue``` defines the version (here a timestamp) to solve the conflict by taking the maximum version. The maximum is defined through the ```Comparable``` interface and used inside the given function used by ```union```.
 
 The below example uses TimestampMicros to version the data and solve conflict by taking the highest version of a value.
+
 ```java
 package io.github.cboudereau.dataseries.snippets;
 
