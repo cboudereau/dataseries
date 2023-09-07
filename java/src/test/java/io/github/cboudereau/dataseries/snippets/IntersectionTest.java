@@ -12,13 +12,13 @@ import io.github.cboudereau.dataseries.UnionResult;
 public class IntersectionTest {
     @Test
     public void intersection() {
-        var s1 = List.of(Series.datapoint(3, 50));
-        var s2 = List.of(Series.datapoint(4, 100), Series.datapoint(7, 110));
+        final var s1 = List.of(Series.datapoint(3, 50));
+        final var s2 = List.of(Series.datapoint(4, 100), Series.datapoint(7, 110));
 
-        var actual = Series.union(s1, s2, IntersectionTest::toTuple).stream().filter(x -> x.data().isPresent())
+        final var actual = Series.union(s1, s2, IntersectionTest::toTuple).stream().filter(x -> x.data().isPresent())
                 .map(x -> Series.datapoint(x.point(), x.data().get())).toArray();
 
-        var expected = List.of(
+        final var expected = List.of(
                 Series.datapoint(4, new Tuple<>(50, 100)),
                 Series.datapoint(7, new Tuple<>(50, 110))).toArray();
 

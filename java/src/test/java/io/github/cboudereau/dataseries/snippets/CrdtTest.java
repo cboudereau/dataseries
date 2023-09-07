@@ -11,6 +11,47 @@ import io.github.cboudereau.dataseries.Series;
 import io.github.cboudereau.dataseries.UnionResult;
 
 public class CrdtTest {
+    @Test
+    public void resolveConflictsTest() {
+        final var actual = Series.union(List.of(
+                datapoint(1, date(2023, 1, 3), 50),
+                end(date(2023, 1, 10))),
+                List.of(
+                        datapoint(2, date(2023, 1, 4), 100),
+                        end(date(2023, 1, 5)),
+                        datapoint(2, date(2023, 1, 7), 110),
+                        end(date(2023, 1, 9))),
+                CrdtTest::resolveConflicts);
+
+        final var expected = List.of(
+                datapoint(1, date(2023, 1, 3), 50),
+                datapoint(2, date(2023, 1, 4), 100),
+                datapoint(1, date(2023, 1, 5), 50),
+                datapoint(2, date(2023, 1, 7), 110),
+                datapoint(1, date(2023, 1, 9), 50),
+                end(date(2023, 1, 10)));
+
+        assertArrayEquals(expected.toArray(), actual.stream().toArray());
+    }
+
+    @Test
+    public void noConflictTest() {
+        final var actual = Series.union(List.of(
+                datapoint(1, date(2023, 1, 3), 50),
+                end(date(2023, 1, 10))),
+                List.of(
+                        datapoint(2, date(2023, 1, 15), 100),
+                        end(date(2023, 1, 20))
+
+                ), CrdtTest::resolveConflicts);
+
+        final var expected = List.of(
+                datapoint(1, date(2023, 1, 3), 50),
+                end(date(2023, 1, 10)),
+                datapoint(2, date(2023, 1, 15), 100),
+                end(date(2023, 1, 20)));
+        assertArrayEquals(expected.toArray(), actual.stream().toArray());
+    }
 
     /**
      * Optional from java.util does not provide any Comparable<Optional<T>>
@@ -83,7 +124,7 @@ public class CrdtTest {
     private static record Date(Integer year, Integer month, Integer day) implements Comparable<Date> {
 
         @Override
-        public int compareTo(Date o) {
+        public int compareTo(final Date o) {
             if (this.year > o.year) {
                 return 1;
             }
@@ -149,45 +190,4 @@ public class CrdtTest {
         }
     }
 
-    @Test
-    public void resolveConflictsTest() {
-        var actual = Series.union(List.of(
-                datapoint(1, date(2023, 1, 3), 50),
-                end(date(2023, 1, 10))),
-                List.of(
-                        datapoint(2, date(2023, 1, 4), 100),
-                        end(date(2023, 1, 5)),
-                        datapoint(2, date(2023, 1, 7), 110),
-                        end(date(2023, 1, 9))),
-                CrdtTest::resolveConflicts);
-
-        var expected = List.of(
-                datapoint(1, date(2023, 1, 3), 50),
-                datapoint(2, date(2023, 1, 4), 100),
-                datapoint(1, date(2023, 1, 5), 50),
-                datapoint(2, date(2023, 1, 7), 110),
-                datapoint(1, date(2023, 1, 9), 50),
-                end(date(2023, 1, 10)));
-
-        assertArrayEquals(expected.toArray(), actual.stream().toArray());
-    }
-
-    @Test
-    public void noConflictTest() {
-        final var actual = Series.union(List.of(
-                datapoint(1, date(2023, 1, 3), 50),
-                end(date(2023, 1, 10))),
-                List.of(
-                        datapoint(2, date(2023, 1, 15), 100),
-                        end(date(2023, 1, 20))
-
-                ), CrdtTest::resolveConflicts);
-
-        final var expected = List.of(
-                datapoint(1, date(2023, 1, 3), 50),
-                end(date(2023, 1, 10)),
-                datapoint(2, date(2023, 1, 15), 100),
-                end(date(2023, 1, 20)));
-        assertArrayEquals(expected.toArray(), actual.stream().toArray());
-    }
 }

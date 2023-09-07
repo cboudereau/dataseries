@@ -27,7 +27,7 @@ final class Merge<P, T> implements Iterator<DataPoint<P, T>> {
 
     private void pullEntry() {
         while (this.series.hasNext()) {
-            var next = this.series.next();
+            final var next = this.series.next();
 
             if (this.current.isEmpty()) {
                 this.current = Optional.of(next);

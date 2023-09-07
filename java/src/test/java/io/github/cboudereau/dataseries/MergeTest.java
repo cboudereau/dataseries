@@ -14,46 +14,46 @@ public class MergeTest {
 
     @Test
     public void PullMergeWithEmptyValueTest() {
-        List<DataPoint<Integer, String>> x = List.of();
-        var iterator = Series.merge(x).iterator();
+        final List<DataPoint<Integer, String>> x = List.of();
+        final var iterator = Series.merge(x).iterator();
         assertThrows(NoSuchElementException.class, () -> iterator.next());
         assertFalse(iterator.hasNext());
     }
 
     @Test
     public void MergeWithEmptyValueTest() {
-        List<DataPoint<Integer, String>> x = List.of();
-        var expected = new Object[] {};
-        var actual = Series.merge(x).stream().toArray();
+        final List<DataPoint<Integer, String>> x = List.of();
+        final var expected = new Object[] {};
+        final var actual = Series.merge(x).stream().toArray();
         assertArrayEquals(expected, actual);
     }
 
     @Test
     public void MergeWithSameValueTest() {
-        List<DataPoint<Integer, Optional<Integer>>> x = List.of(
+        final List<DataPoint<Integer, Optional<Integer>>> x = List.of(
                 Series.datapoint(1, Optional.of(10)),
                 Series.datapoint(5, Optional.of(10)),
                 Series.datapoint(10, Optional.empty()));
 
-        var expected = List.of(Series.datapoint(1, Optional.of(10)), Series.datapoint(10, Optional.empty())).toArray();
+        final var expected = List.of(Series.datapoint(1, Optional.of(10)), Series.datapoint(10, Optional.empty())).toArray();
 
-        var actual = Series.merge(x).stream().toArray();
+        final var actual = Series.merge(x).stream().toArray();
         assertArrayEquals(expected, actual);
     }
 
     @Test
     public void MergeWithDifferentValueTest() {
-        List<DataPoint<Integer, Optional<Integer>>> x = List.of(
+        final List<DataPoint<Integer, Optional<Integer>>> x = List.of(
                 Series.datapoint(1, Optional.of(10)),
                 Series.datapoint(5, Optional.of(100)),
                 Series.datapoint(10, Optional.empty()));
 
-        var expected = List.of(
+        final var expected = List.of(
                 Series.datapoint(1, Optional.of(10)),
                 Series.datapoint(5, Optional.of(100)),
                 Series.datapoint(10, Optional.empty())).toArray();
 
-        var actual = Series.merge(x).stream().toArray();
+        final var actual = Series.merge(x).stream().toArray();
         assertArrayEquals(expected, actual);
     }
 }
