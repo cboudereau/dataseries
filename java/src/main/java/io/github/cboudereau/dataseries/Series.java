@@ -36,6 +36,46 @@ import java.util.function.Function;
  * }<br/>
  * </code>
  * <br/>
+ * Remove duplicates from contiguous data
+ * <br/>
+ * <br/>
+ * <code>
+ * package io.github.cboudereau.dataseries.snippets;<br/>
+ * <br/>
+ * import static org.junit.jupiter.api.Assertions.assertArrayEquals;<br/>
+ * <br/>
+ * import java.util.List;<br/>
+ * <br/>
+ * import org.junit.jupiter.api.Test;<br/>
+ * <br/>
+ * import io.github.cboudereau.dataseries.Series;<br/>
+ * <br/>
+ * public class MergeTest {<br/>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&#64;Test<br/>
+ * &nbsp;&nbsp;&nbsp;&nbsp;public void contiguousTest() {<br/>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;final var s1 = List.of(Series.datapoint(1, 100), Series.datapoint(3, 100));<br/>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;final var actual = Series.merge(s1);<br/>
+ * <br/>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;final var expected = List.of(Series.datapoint(1, 100));<br/>
+ * <br/>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assertArrayEquals(expected.toArray(), actual.stream().toArray());<br/>
+ * &nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+ * <br/>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&#64;Test<br/>
+ * &nbsp;&nbsp;&nbsp;&nbsp;public void uncontiguousTest() {<br/>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;final var s1 = List.of(Series.datapoint(1, 100), Series.datapoint(3, 10));<br/>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;final var actual = Series.merge(s1);<br/>
+ * <br/>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;final var expected = List.of(Series.datapoint(1, 100), Series.datapoint(3, 10));<br/>
+ * <br/>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assertArrayEquals(expected.toArray(), actual.stream().toArray());<br/>
+ * &nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+ * <br/>
+ * }<br/>
+ * </code>
+ * <br/>
+ * <br/>
+ * <br/>
  * Convert an Union to an Intersection example :
  * snippets.IntersectionTest
  * <code>
