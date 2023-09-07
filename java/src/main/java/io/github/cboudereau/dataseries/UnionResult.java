@@ -49,7 +49,7 @@ public sealed interface UnionResult<L, R> permits UnionResult.LeftOnly, UnionRes
      * @return A left only union result when there is no right data for the given
      *         point
      */
-    public static <L, R> UnionResult.LeftOnly<L, R> leftOnly(L left) {
+    public static <L, R> UnionResult.LeftOnly<L, R> leftOnly(final L left) {
         return new UnionResult.LeftOnly<L, R>(left);
     }
 
@@ -62,7 +62,7 @@ public sealed interface UnionResult<L, R> permits UnionResult.LeftOnly, UnionRes
      * @return A right only union result when there is no left data for the given
      *         point
      */
-    public static <L, R> UnionResult.RightOnly<L, R> rightOnly(R right) {
+    public static <L, R> UnionResult.RightOnly<L, R> rightOnly(final R right) {
         return new UnionResult.RightOnly<L, R>(right);
     }
 
@@ -75,7 +75,7 @@ public sealed interface UnionResult<L, R> permits UnionResult.LeftOnly, UnionRes
      * @param right the right data
      * @return A union of both (left and right)
      */
-    public static <L, R> UnionResult.Both<L, R> both(L left, R right) {
+    public static <L, R> UnionResult.Both<L, R> both(final L left, final R right) {
         return new UnionResult.Both<L, R>(left, right);
     }
 }
