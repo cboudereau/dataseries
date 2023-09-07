@@ -77,7 +77,6 @@ import java.util.function.Function;
  * <br/>
  * <br/>
  * Convert an Union to an Intersection example :
- * snippets.IntersectionTest
  * <code>
  * <br/>
  * <br/>
