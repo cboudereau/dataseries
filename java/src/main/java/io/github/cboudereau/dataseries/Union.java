@@ -97,9 +97,6 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
             return switch (this) {
                 case final Single<T> s -> s.v;
                 case final Pair<T> p -> p.first;
-                // FIXME : remove this when https://openjdk.org/jeps/433 will be ready (> 17,
-                // java 20 at least)
-                default -> throw new UnsupportedOperationException();
             };
         }
 
