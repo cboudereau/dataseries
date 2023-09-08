@@ -29,20 +29,10 @@ public class IntersectionTest {
     }
 
     private static <L, R> Optional<Tuple<L, R>> toTuple(UnionResult<L, R> unionResult) {
-        switch (unionResult) {
-            case UnionResult.LeftOnly<L, R> x -> {
-                return Optional.empty();
-            }
-            case UnionResult.RightOnly<L, R> x -> {
-                return Optional.empty();
-            }
-
-            case UnionResult.Both<L, R> both -> {
-                return Optional.of(new Tuple<L, R>(both.left(), both.right()));
-            }
-        }
-        // FIXME : remove this when https://openjdk.org/jeps/433 will be ready (> 17,
-        // java 20 at least)
-        throw new UnsupportedOperationException();
+        return switch (unionResult) {
+            case UnionResult.LeftOnly<L, R> x -> Optional.empty();
+            case UnionResult.RightOnly<L, R> x -> Optional.empty();
+            case UnionResult.Both<L, R> both -> Optional.of(new Tuple<L, R>(both.left(), both.right()));
+        };
     }
 }
