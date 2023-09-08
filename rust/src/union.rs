@@ -85,58 +85,41 @@ where
     type Item = Cursor<IT::Item>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        fn get_next_not_pulled<IT>(this: &mut CursorIterator<IT>) -> Option<Cursor<IT::Item>>
-        where
-            IT: Iterator,
-            IT::Item: Copy,
-        {
-            match this.iterator.next() {
-                Some(fst) => match this.iterator.next() {
+        match self.state {
+            CursorState::Done => None,
+
+            CursorState::NotPulled => match self.iterator.next() {
+                Some(fst) => match self.iterator.next() {
                     Some(snd) => {
                         let value = CursorState::Current(snd);
-                        this.state = value;
+                        self.state = value;
                         Some(Cursor::Pair { fst, snd })
                     }
                     None => {
-                        this.state = CursorState::Done;
+                        self.state = CursorState::Done;
                         Some(Cursor::Single(fst))
                     }
                 },
                 None => {
-                    this.state = CursorState::Done;
+                    self.state = CursorState::Done;
                     None
                 }
-            }
-        }
+            },
 
-        fn get_next_current<IT>(
-            this: &mut CursorIterator<IT>,
-            current: IT::Item,
-        ) -> Option<Cursor<IT::Item>>
-        where
-            IT: Iterator,
-            IT::Item: Copy,
-        {
-            match this.iterator.next() {
+            CursorState::Current(current) => match self.iterator.next() {
                 None => {
-                    this.state = CursorState::Done;
+                    self.state = CursorState::Done;
                     Some(Cursor::Single(current))
                 }
                 Some(next) => {
-                    this.state = CursorState::Current(next);
+                    self.state = CursorState::Current(next);
 
                     Some(Cursor::Pair {
                         fst: current,
                         snd: next,
                     })
                 }
-            }
-        }
-
-        match self.state {
-            CursorState::Done => None,
-            CursorState::NotPulled => get_next_not_pulled(self),
-            CursorState::Current(current) => get_next_current(self, current),
+            },
         }
     }
 }
@@ -210,18 +193,14 @@ where
                 }
             };
 
-        let get_init_state =
-            |left: Option<Cursor<DataPoint<P, L::Value>>>,
-             right: Option<Cursor<DataPoint<P, R::Value>>>| match (left, right) {
-                (None, None) => None,
-                (Some(left), None) => Some(UnionState::LeftOnly(left)),
-                (None, Some(right)) => Some(UnionState::RightOnly(right)),
-                (Some(left), Some(right)) => Some(get_union_state(left, right)),
-            };
-
         self.state = {
             match &self.state {
-                UnionState::None => get_init_state(self.left.next(), self.right.next()),
+                UnionState::None => match (self.left.next(), self.right.next()) {
+                    (None, None) => None,
+                    (Some(left), None) => Some(UnionState::LeftOnly(left)),
+                    (None, Some(right)) => Some(UnionState::RightOnly(right)),
+                    (Some(left), Some(right)) => Some(get_union_state(left, right)),
+                },
                 UnionState::Overlapped { left, right } => match left
                     .map(|x| x.point())
                     .snd()
@@ -242,6 +221,7 @@ where
                     }),
                 },
                 UnionState::RightOnly(_) => self.right.next().map(UnionState::RightOnly),
+
                 UnionState::LeftOnly(_) => self.left.next().map(UnionState::LeftOnly),
                 UnionState::Disjointed { left, right }
                     if left
