@@ -1,9 +1,13 @@
 package io.github.cboudereau.dataseries;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
+
 import org.junit.jupiter.api.Test;
 
 public class UnionTest {
@@ -42,6 +46,15 @@ public class UnionTest {
     @Test
     public void emptyTest() {
         test(Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+    }
+
+    @Test
+    public void emptyPullTest() {
+        List<DataPoint<Integer, Integer>> s = Collections.emptyList();
+        var iterator = Series.union(s, s, x -> x).iterator();
+        assertFalse(iterator.hasNext());
+        assertFalse(iterator.hasNext());
+        assertThrows(NoSuchElementException.class, () -> iterator.next());
     }
 
     @Test
