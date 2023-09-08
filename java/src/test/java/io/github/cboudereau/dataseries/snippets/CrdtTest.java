@@ -160,20 +160,11 @@ public class CrdtTest {
      * Solves conflict by taking always the maximum version
      */
     private static final <T extends Comparable<T>> T resolveConflicts(final UnionResult<T, T> unionResult) {
-        switch (unionResult) {
-            case final UnionResult.LeftOnly<T, T> l -> {
-                return l.left();
-            }
-            case final UnionResult.RightOnly<T, T> r -> {
-                return r.right();
-            }
-            case final UnionResult.Both<T, T> b -> {
-                if (b.right().compareTo(b.left()) > 0) {
-                    return b.right();
-                }
-
-                return b.left();
-            }
-        }
+        return switch (unionResult) {
+            case final UnionResult.LeftOnly<T, T> l -> l.left();
+            case final UnionResult.RightOnly<T, T> r -> r.right();
+            case final UnionResult.Both<T, T> b when b.right().compareTo(b.left()) > 0 -> b.right();
+            case final UnionResult.Both<T, T> b -> b.left();
+        };
     }
 }

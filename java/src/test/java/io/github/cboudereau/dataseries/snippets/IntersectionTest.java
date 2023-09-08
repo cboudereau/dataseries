@@ -29,17 +29,10 @@ public class IntersectionTest {
     }
 
     private static <L, R> Optional<Tuple<L, R>> toTuple(UnionResult<L, R> unionResult) {
-        switch (unionResult) {
-            case UnionResult.LeftOnly<L, R> x -> {
-                return Optional.empty();
-            }
-            case UnionResult.RightOnly<L, R> x -> {
-                return Optional.empty();
-            }
-
-            case UnionResult.Both<L, R> both -> {
-                return Optional.of(new Tuple<L, R>(both.left(), both.right()));
-            }
-        }
+        return switch (unionResult) {
+            case final UnionResult.LeftOnly<L, R> x -> Optional.empty();
+            case final UnionResult.RightOnly<L, R> x -> Optional.empty();
+            case final UnionResult.Both<L, R> both -> Optional.of(new Tuple<L, R>(both.left(), both.right()));
+        };
     }
 }

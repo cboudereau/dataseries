@@ -28,11 +28,11 @@ public class UnionTest {
             final var actual = union.stream().toArray();
 
             final var expectedArray = expected.stream().map(x -> switch (x.data()) {
-                case UnionResult.LeftOnly<Integer, Integer> leftOnly ->
+                case final UnionResult.LeftOnly<Integer, Integer> leftOnly ->
                     Series.datapoint(x.point(), UnionResult.rightOnly(leftOnly.left()));
-                case UnionResult.RightOnly<Integer, Integer> rightOnly ->
+                case final UnionResult.RightOnly<Integer, Integer> rightOnly ->
                     Series.datapoint(x.point(), UnionResult.leftOnly(rightOnly.right()));
-                case UnionResult.Both<Integer, Integer> both ->
+                case final UnionResult.Both<Integer, Integer> both ->
                     Series.datapoint(x.point(), UnionResult.both(both.right(), both.left()));
             }).toArray();
             assertArrayEquals(expectedArray, actual);
