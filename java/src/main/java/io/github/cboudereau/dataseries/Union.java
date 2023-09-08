@@ -78,14 +78,10 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
         }
 
         default <R> Cursor<R> map(final Function<T, R> f) {
-            switch (this) {
-                case final Single<T> s -> {
-                    return Cursor.single(f.apply(s.v));
-                }
-                case final Pair<T> p -> {
-                    return Cursor.pair(f.apply(p.first), f.apply(p.second));
-                }
-            }
+            return switch (this) {
+                case final Single<T> s -> Cursor.single(f.apply(s.v));;
+                case final Pair<T> p -> Cursor.pair(f.apply(p.first), f.apply(p.second));
+            };
             // FIXME : remove this when https://openjdk.org/jeps/433 will be ready (> 17,
             // java 20 at least)
             throw new UnsupportedOperationException();
@@ -98,14 +94,10 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
         }
 
         default T fst() {
-            switch (this) {
-                case final Single<T> s -> {
-                    return s.v;
-                }
-                case final Pair<T> p -> {
-                    return p.first;
-                }
-            }
+            return switch (this) {
+                case final Single<T> s -> s.v;
+                case final Pair<T> p -> p.first;
+            };
             // FIXME : remove this when https://openjdk.org/jeps/433 will be ready (> 17,
             // java 20 at least)
             throw new UnsupportedOperationException();
