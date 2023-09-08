@@ -112,18 +112,10 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
         }
 
         static <T extends Comparable<T>> Value<T> snd(final Cursor<T> x) {
-            switch (x) {
-                case final Single<T> s -> {
-                    return Value.infinite();
-                }
-                case final Pair<T> p -> {
-                    return Value.fixed(p.second);
-                }
-            }
-
-            // FIXME : remove this when https://openjdk.org/jeps/433 will be ready (> 17,
-            // java 20 at least)
-            throw new UnsupportedOperationException();
+            return switch (x) {
+                case final Single<T> s -> Value.infinite();
+                case final Pair<T> p -> Value.fixed(p.second);
+            };
         }
     }
 
