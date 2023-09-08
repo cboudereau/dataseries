@@ -26,22 +26,22 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
         @Override
         default int compareTo(final Value<T> o) {
             switch (this) {
-                case Infinite<T> i -> {
+                case final Infinite<T> i -> {
                     switch (o) {
-                        case Infinite<T> i2 -> {
+                        case final Infinite<T> i2 -> {
                             return 0;
                         }
-                        case Fixed<T> v -> {
+                        case final Fixed<T> v -> {
                             return 1;
                         }
                     }
                 }
-                case Fixed<T> v -> {
+                case final Fixed<T> v -> {
                     switch (o) {
-                        case Infinite<T> i -> {
+                        case final Infinite<T> i -> {
                             return -1;
                         }
-                        case Fixed<T> v2 -> {
+                        case final Fixed<T> v2 -> {
                             return v.value.compareTo(v2.value);
                         }
                     }
