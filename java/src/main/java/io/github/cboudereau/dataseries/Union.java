@@ -302,12 +302,10 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
     private final UnionState<DataPoint<P, L>, DataPoint<P, R>> getState() {
         return switch (this.state) {
             case final UnionState.None<DataPoint<P, L>, DataPoint<P, R>> none -> getInitState();
-            case final UnionState.LeftOnly<DataPoint<P, L>, DataPoint<P, R>> left when this.left.hasNext() ->
-                UnionState.leftOnly(this.left.next());
-            case final UnionState.LeftOnly<DataPoint<P, L>, DataPoint<P, R>> left -> UnionState.none();
-            case final UnionState.RightOnly<DataPoint<P, L>, DataPoint<P, R>> right when this.right.hasNext() ->
-                UnionState.rightOnly(this.right.next());
-            case final UnionState.RightOnly<DataPoint<P, L>, DataPoint<P, R>> right -> UnionState.none();
+            case final UnionState.LeftOnly<DataPoint<P, L>, DataPoint<P, R>> left ->
+                (this.left.hasNext()) ? UnionState.leftOnly(this.left.next()) : UnionState.none();
+            case final UnionState.RightOnly<DataPoint<P, L>, DataPoint<P, R>> right ->
+                this.right.hasNext() ? UnionState.rightOnly(this.right.next()) : UnionState.none();
             case final UnionState.Overlapped<DataPoint<P, L>, DataPoint<P, R>> overlapped ->
                 getOverlappedState(overlapped).orElseGet(() -> UnionState.none());
             case final UnionState.Disjointed<DataPoint<P, L>, DataPoint<P, R>> disjointed ->
