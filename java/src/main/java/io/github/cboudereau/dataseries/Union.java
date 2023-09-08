@@ -79,12 +79,12 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
 
         default <R> Cursor<R> map(final Function<T, R> f) {
             return switch (this) {
-                case final Single<T> s -> Cursor.single(f.apply(s.v));;
+                case final Single<T> s -> Cursor.single(f.apply(s.v));
                 case final Pair<T> p -> Cursor.pair(f.apply(p.first), f.apply(p.second));
+                // FIXME : remove this when https://openjdk.org/jeps/433 will be ready (> 17,
+                // java 20 at least)
+                default -> throw new UnsupportedOperationException();
             };
-            // FIXME : remove this when https://openjdk.org/jeps/433 will be ready (> 17,
-            // java 20 at least)
-            throw new UnsupportedOperationException();
         }
 
         static <T extends Comparable<T>> Boolean canOverlap(final Cursor<T> left, final Cursor<T> right) {
@@ -97,10 +97,10 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
             return switch (this) {
                 case final Single<T> s -> s.v;
                 case final Pair<T> p -> p.first;
+                // FIXME : remove this when https://openjdk.org/jeps/433 will be ready (> 17,
+                // java 20 at least)
+                default -> throw new UnsupportedOperationException();
             };
-            // FIXME : remove this when https://openjdk.org/jeps/433 will be ready (> 17,
-            // java 20 at least)
-            throw new UnsupportedOperationException();
         }
 
         static <T extends Comparable<T>> Value<T> snd(final Cursor<T> x) {
@@ -125,14 +125,12 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
 
         private final Optional<Cursor<T>> getState() {
             if (this.state.isPresent()) {
-                switch (this.state.get()) {
+                return switch (this.state.get()) {
                     case final Cursor.Single<T> single -> Optional.empty();
-                    case final Cursor.Pair<T> pair -> {
-                        if (!this.iterator.hasNext())
-                            return Optional.of(Cursor.single(pair.second()));
-                        return Optional.of(Cursor.pair(pair.second(), this.iterator.next()));
-                    }
-                }
+                    case final Cursor.Pair<T> pair when this.iterator.hasNext() ->
+                        Optional.of(Cursor.pair(pair.second(), this.iterator.next()));
+                    case final Cursor.Pair<T> pair -> Optional.of(Cursor.single(pair.second()));
+                };
             }
 
             if (!this.iterator.hasNext())
