@@ -333,9 +333,6 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
             case final UnionState.RightOnly<DataPoint<P, L>, DataPoint<P, R>> rightOnly -> getRight(rightOnly);
             case final UnionState.Disjointed<DataPoint<P, L>, DataPoint<P, R>> disjointed -> getDisjointed(disjointed);
             case final UnionState.Overlapped<DataPoint<P, L>, DataPoint<P, R>> overlapped -> getOverlapped(overlapped);
-            // FIXME : remove this when https://openjdk.org/jeps/433 will be ready (> 17,
-            // java 20 at least)
-            default -> throw new UnsupportedOperationException();
         };
     }
 
