@@ -47,10 +47,6 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
                     }
                 }
             }
-
-            // FIXME : remove this when https://openjdk.org/jeps/433 will be ready (> 17,
-            // java 20 at least)
-            throw new UnsupportedOperationException();
         }
 
         default boolean isGreaterThan(final Value<T> o) {
@@ -78,14 +74,10 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
         }
 
         default <R> Cursor<R> map(final Function<T, R> f) {
-            switch (this) {
-                case final Single<T> s -> {
-                    return Cursor.single(f.apply(s.v));
-                }
-                case final Pair<T> p -> {
-                    return Cursor.pair(f.apply(p.first), f.apply(p.second));
-                }
-            }
+            return switch (this) {
+                case final Single<T> s -> Cursor.single(f.apply(s.v));
+                case final Pair<T> p -> Cursor.pair(f.apply(p.first), f.apply(p.second));
+            };
             // FIXME : remove this when https://openjdk.org/jeps/433 will be ready (> 17,
             // java 20 at least)
             throw new UnsupportedOperationException();
@@ -98,29 +90,20 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
         }
 
         default T fst() {
-            switch (this) {
-                case final Single<T> s -> {
-                    return s.v;
-                }
-                case final Pair<T> p -> {
-                    return p.first;
-                }
-            }
+            return switch (this) {
+                case final Single<T> s -> s.v;
+                case final Pair<T> p -> p.first;
+            };
             // FIXME : remove this when https://openjdk.org/jeps/433 will be ready (> 17,
             // java 20 at least)
             throw new UnsupportedOperationException();
         }
 
         static <T extends Comparable<T>> Value<T> snd(final Cursor<T> x) {
-            switch (x) {
-                case final Single<T> s -> {
-                    return Value.infinite();
-                }
-                case final Pair<T> p -> {
-                    return Value.fixed(p.second);
-                }
-            }
-
+            return switch (x) {
+                case final Single<T> s -> Value.infinite();
+                case final Pair<T> p -> Value.fixed(p.second);
+            };
             // FIXME : remove this when https://openjdk.org/jeps/433 will be ready (> 17,
             // java 20 at least)
             throw new UnsupportedOperationException();
@@ -141,14 +124,12 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
 
         private final Optional<Cursor<T>> getState() {
             if (this.state.isPresent()) {
-                switch (this.state.get()) {
+                return switch (this.state.get()) {
                     case final Cursor.Single<T> single -> Optional.empty();
-                    case final Cursor.Pair<T> pair -> {
-                        if (!this.iterator.hasNext())
-                            return Optional.of(Cursor.single(pair.second()));
-                        return Optional.of(Cursor.pair(pair.second(), this.iterator.next()));
-                    }
-                }
+                    case final Cursor.Pair<T> pair when this.iterator.hasNext() ->
+                        Optional.of(Cursor.pair(pair.second(), this.iterator.next()));
+                    case final Cursor.Pair<T> pair -> Optional.of(Cursor.single(pair.second()));
+                };
             }
 
             if (!this.iterator.hasNext())
@@ -256,80 +237,80 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
         return UnionState.disjointed(left, right);
     }
 
-    private final UnionState<DataPoint<P, L>, DataPoint<P, R>> getState() {
-        switch (this.state) {
-            case final UnionState.None<DataPoint<P, L>, DataPoint<P, R>> none -> {
-                final var hasLeft = this.left.hasNext();
-                final var hasRight = this.right.hasNext();
+    private final UnionState<DataPoint<P, L>, DataPoint<P, R>> getInitState() {
+        final var hasLeft = this.left.hasNext();
+        final var hasRight = this.right.hasNext();
 
-                if (hasLeft && hasRight) {
-                    final var left = this.left.next();
-                    final var right = this.right.next();
-                    return getUnionState(left, right);
-                }
-
-                if (hasLeft) {
-                    return UnionState.leftOnly(this.left.next());
-                }
-
-                if (hasRight) {
-                    return UnionState.rightOnly(this.right.next());
-                }
-
-                return UnionState.none();
-            }
-            case final UnionState.LeftOnly<DataPoint<P, L>, DataPoint<P, R>> left -> {
-                if (this.left.hasNext()) {
-                    return UnionState.leftOnly(this.left.next());
-                }
-                return UnionState.none();
-            }
-            case final UnionState.RightOnly<DataPoint<P, L>, DataPoint<P, R>> right -> {
-                if (this.right.hasNext()) {
-                    return UnionState.rightOnly(this.right.next());
-                }
-                return UnionState.none();
-            }
-            case final UnionState.Overlapped<DataPoint<P, L>, DataPoint<P, R>> overlapped -> {
-                final var leftPoint = overlapped.left.map(x -> x.point());
-                final var rightPoint = overlapped.right.map(x -> x.point());
-                final var cmp = Cursor.snd(leftPoint).compareTo(Cursor.snd(rightPoint));
-                if (cmp < 0) {
-                    if (!this.left.hasNext())
-                        return UnionState.none();
-                    return UnionState.overlapped(this.left.next(), overlapped.right);
-                }
-                if (cmp > 0) {
-                    if (!this.right.hasNext())
-                        return UnionState.none();
-                    return UnionState.overlapped(overlapped.left, this.right.next());
-                }
-                if (!this.left.hasNext() || !this.right.hasNext())
-                    return UnionState.none();
-                return UnionState.overlapped(this.left.next(), this.right.next());
-            }
-            case final UnionState.Disjointed<DataPoint<P, L>, DataPoint<P, R>> disjointed -> {
-                final var leftPoint = disjointed.left.map(x -> x.point());
-                final var rightPoint = disjointed.right.map(x -> x.point());
-                if (Cursor.canOverlap(leftPoint, rightPoint)) {
-                    return UnionState.overlapped(disjointed.left, disjointed.right);
-                }
-
-                if (Cursor.snd(leftPoint).compareTo(Cursor.snd(rightPoint)) < 0) {
-                    if (!this.left.hasNext())
-                        return UnionState.none();
-                    return getUnionState(this.left.next(), disjointed.right);
-                }
-
-                if (!this.right.hasNext())
-                    return UnionState.none();
-                return getUnionState(disjointed.left, this.right.next());
-            }
+        if (hasLeft && hasRight) {
+            final var left = this.left.next();
+            final var right = this.right.next();
+            return getUnionState(left, right);
         }
 
-        // FIXME : remove this when https://openjdk.org/jeps/433 will be ready (> 17,
-        // java 20 at least)
-        throw new UnsupportedOperationException();
+        if (hasLeft) {
+            return UnionState.leftOnly(this.left.next());
+        }
+
+        if (hasRight) {
+            return UnionState.rightOnly(this.right.next());
+        }
+
+        return UnionState.none();
+    }
+
+    private final UnionState<DataPoint<P, L>, DataPoint<P, R>> getOverlappedState(
+            final UnionState.Overlapped<DataPoint<P, L>, DataPoint<P, R>> overlapped) {
+        final var leftPoint = overlapped.left.map(x -> x.point());
+        final var rightPoint = overlapped.right.map(x -> x.point());
+        final var cmp = Cursor.snd(leftPoint).compareTo(Cursor.snd(rightPoint));
+        if (cmp < 0) {
+            if (!this.left.hasNext())
+                return UnionState.none();
+            return UnionState.overlapped(this.left.next(), overlapped.right);
+        }
+        if (cmp > 0) {
+            if (!this.right.hasNext())
+                return UnionState.none();
+            return UnionState.overlapped(overlapped.left, this.right.next());
+        }
+        if (!this.left.hasNext() || !this.right.hasNext())
+            return UnionState.none();
+        return UnionState.overlapped(this.left.next(), this.right.next());
+    }
+
+    private final UnionState<DataPoint<P, L>, DataPoint<P, R>> getDisjointedState(
+            final UnionState.Disjointed<DataPoint<P, L>, DataPoint<P, R>> disjointed) {
+        final var leftPoint = disjointed.left.map(x -> x.point());
+        final var rightPoint = disjointed.right.map(x -> x.point());
+        if (Cursor.canOverlap(leftPoint, rightPoint)) {
+            return UnionState.overlapped(disjointed.left, disjointed.right);
+        }
+
+        if (Cursor.snd(leftPoint).compareTo(Cursor.snd(rightPoint)) < 0) {
+            if (!this.left.hasNext())
+                return UnionState.none();
+            return getUnionState(this.left.next(), disjointed.right);
+        }
+
+        if (!this.right.hasNext())
+            return UnionState.none();
+        return getUnionState(disjointed.left, this.right.next());
+    }
+
+    private final UnionState<DataPoint<P, L>, DataPoint<P, R>> getState() {
+        return switch (this.state) {
+            case final UnionState.None<DataPoint<P, L>, DataPoint<P, R>> none -> getInitState();
+            case final UnionState.LeftOnly<DataPoint<P, L>, DataPoint<P, R>> left when this.left.hasNext() ->
+                UnionState.leftOnly(this.left.next());
+            case final UnionState.LeftOnly<DataPoint<P, L>, DataPoint<P, R>> left -> UnionState.none();
+            case final UnionState.RightOnly<DataPoint<P, L>, DataPoint<P, R>> right when this.right.hasNext() ->
+                UnionState.rightOnly(this.right.next());
+            case final UnionState.RightOnly<DataPoint<P, L>, DataPoint<P, R>> right -> UnionState.none();
+            case final UnionState.Overlapped<DataPoint<P, L>, DataPoint<P, R>> overlapped ->
+                getOverlappedState(overlapped);
+            case final UnionState.Disjointed<DataPoint<P, L>, DataPoint<P, R>> disjointed ->
+                getDisjointedState(disjointed);
+        };
     }
 
     private final void pull() {
