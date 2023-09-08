@@ -25,32 +25,16 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
 
         @Override
         default int compareTo(final Value<T> o) {
-            switch (this) {
-                case final Infinite<T> i -> {
-                    switch (o) {
-                        case final Infinite<T> i2 -> {
-                            return 0;
-                        }
-                        case final Fixed<T> v -> {
-                            return 1;
-                        }
-                    }
-                }
-                case final Fixed<T> v -> {
-                    switch (o) {
-                        case final Infinite<T> i -> {
-                            return -1;
-                        }
-                        case final Fixed<T> v2 -> {
-                            return v.value.compareTo(v2.value);
-                        }
-                    }
-                }
-            }
-
-            // FIXME : remove this when https://openjdk.org/jeps/433 will be ready (> 17,
-            // java 20 at least)
-            throw new UnsupportedOperationException();
+            return switch (this) {
+                case final Infinite<T> i -> switch (o) {
+                    case final Infinite<T> i2 -> 0;
+                    case final Fixed<T> v -> 1;
+                };
+                case final Fixed<T> v -> switch (o) {
+                    case final Infinite<T> i -> -1;
+                    case final Fixed<T> v2 -> v.value.compareTo(v2.value);
+                };
+            };
         }
 
         default boolean isGreaterThan(final Value<T> o) {
