@@ -301,9 +301,6 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
                 getOverlappedState(overlapped).orElseGet(() -> UnionState.none());
             case final UnionState.Disjointed<DataPoint<P, L>, DataPoint<P, R>> disjointed ->
                 getDisjointedState(disjointed).orElseGet(() -> UnionState.none());
-            // FIXME : remove this when https://openjdk.org/jeps/433 will be ready (> 17,
-            // java 20 at least)
-            default -> throw new UnsupportedOperationException();
         };
     }
 
