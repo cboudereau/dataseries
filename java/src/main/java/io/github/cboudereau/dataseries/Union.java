@@ -9,6 +9,9 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
 
     sealed interface Value<T extends Comparable<T>> extends Comparable<Value<T>> permits Value.Fixed, Value.Infinite {
 
+        static record Tuple<L, R>(L fst, R snd) {
+        }
+
         public static final record Fixed<T extends Comparable<T>>(T value) implements Value<T> {
         }
 
@@ -25,28 +28,13 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
 
         @Override
         default int compareTo(final Value<T> o) {
-            switch (this) {
-                case Infinite<T> i -> {
-                    switch (o) {
-                        case Infinite<T> i2 -> {
-                            return 0;
-                        }
-                        case Fixed<T> v -> {
-                            return 1;
-                        }
-                    }
-                }
-                case Fixed<T> v -> {
-                    switch (o) {
-                        case Infinite<T> i -> {
-                            return -1;
-                        }
-                        case Fixed<T> v2 -> {
-                            return v.value.compareTo(v2.value);
-                        }
-                    }
-                }
-            }
+            return switch (new Tuple<>(this, o)) {
+                case Tuple<Value<T>, Value<T>> (Value.Infinite<T> fst, Value.Infinite<T> snd) -> 0;
+                case Tuple<Value<T>, Value<T>> (Value.Infinite<T> fst, Value.Fixed<T> snd) -> 1;
+                case Tuple<Value<T>, Value<T>> (Value.Fixed<T> fst, Value.Infinite<T> snd) -> -1;
+                case Tuple<Value<T>, Value<T>> (Value.Fixed<T> fst, Value.Fixed<T> snd) -> fst.value.compareTo(snd.value);
+                default -> throw new IllegalArgumentException("Unexpected value");
+            };
         }
 
         default boolean isGreaterThan(final Value<T> o) {
