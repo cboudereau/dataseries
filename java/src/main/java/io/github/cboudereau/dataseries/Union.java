@@ -124,9 +124,6 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
                     case final Cursor.Pair<T> pair ->
                         this.iterator.hasNext() ? Optional.of(Cursor.pair(pair.second(), this.iterator.next()))
                                 : Optional.of(Cursor.single(pair.second()));
-                    // FIXME : remove this when https://openjdk.org/jeps/433 will be ready (> 17,
-                    // java 20 at least)
-                    default -> throw new UnsupportedOperationException();
                 };
             }
 
