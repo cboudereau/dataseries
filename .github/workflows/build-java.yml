@@ -3,13 +3,10 @@ name: build-java
 on:
   push:
     branches: [ "main" ]
-    paths:
-        - '.github/**-java.yml'
-        - 'java/**'
   pull_request:
     branches: [ "*" ]
     paths:
-        - '.github/**'
+        - '.github/**-java.yml'
         - 'java/**'
 
 jobs:
