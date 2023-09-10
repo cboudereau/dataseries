@@ -61,6 +61,44 @@ public class SimpleTest {
 }
 ```
 
+#### merge
+A merge removes duplicates (same contiguous values)
+
+```java
+package io.github.cboudereau.dataseries.snippets;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+
+import io.github.cboudereau.dataseries.Series;
+
+public class MergeTest {
+    @Test
+    public void contiguousTest() {
+        final var s1 = List.of(Series.datapoint(1, 100), Series.datapoint(3, 100));
+        final var actual = Series.merge(s1);
+
+        final var expected = List.of(Series.datapoint(1, 100));
+
+        assertArrayEquals(expected.toArray(), actual.stream().toArray());
+    }
+
+    @Test
+    public void uncontiguousTest() {
+        final var s1 = List.of(Series.datapoint(1, 100), Series.datapoint(3, 10));
+        final var actual = Series.merge(s1);
+
+        final var expected = List.of(Series.datapoint(1, 100), Series.datapoint(3, 10));
+
+        assertArrayEquals(expected.toArray(), actual.stream().toArray());
+    }
+
+}
+```
+
 #### intersection
 An intersection implementation using the ```union``` function.
 
@@ -96,18 +134,11 @@ public class IntersectionTest {
     }
 
     private static <L, R> Optional<Tuple<L, R>> toTuple(UnionResult<L, R> unionResult) {
-        switch (unionResult) {
-            case UnionResult.LeftOnly<L, R> x -> {
-                return Optional.empty();
-            }
-            case UnionResult.RightOnly<L, R> x -> {
-                return Optional.empty();
-            }
-
-            case UnionResult.Both<L, R> both -> {
-                return Optional.of(new Tuple<L, R>(both.left(), both.right()));
-            }
-        }
+        return switch (unionResult) {
+            case final UnionResult.LeftOnly<L, R> x -> Optional.empty();
+            case final UnionResult.RightOnly<L, R> x -> Optional.empty();
+            case final UnionResult.Both<L, R> both -> Optional.of(new Tuple<L, R>(both.left(), both.right()));
+        };
     }
 }
 ```
@@ -175,6 +206,9 @@ public class CrdtTest {
         assertArrayEquals(expected.toArray(), actual.stream().toArray());
     }
 
+    private static record Tuple<L, R>(L fst, R snd) {
+    }
+
     /**
      * Optional from java.util does not provide any Comparable<Optional<T>>
      * implementation like other languages (rust with traits).
@@ -185,28 +219,12 @@ public class CrdtTest {
     private static sealed interface Option<T extends Comparable<T>> extends Comparable<Option<T>>
             permits Option.None, Option.Some {
         default int compareTo(final Option<T> o) {
-            switch (this) {
-                case final None<T> n1 -> {
-                    switch (o) {
-                        case final None<T> n2 -> {
-                            return 0;
-                        }
-                        case final Some<T> s -> {
-                            return -1;
-                        }
-                    }
-                }
-                case final Some<T> s1 -> {
-                    switch (o) {
-                        case None<T> n -> {
-                            return 1;
-                        }
-                        case Some<T> s2 -> {
-                            return s1.value.compareTo(s2.value);
-                        }
-                    }
-                }
-            }
+            return switch(new Tuple<>(this, o)){
+                case final Tuple<Option<T>, Option<T>> (Option.None<T> fst, Option.None<T> snd) -> 0;
+                case final Tuple<Option<T>, Option<T>> (Option.Some<T> fst, Option.None<T> snd) -> 1;
+                case final Tuple<Option<T>, Option<T>> (Option.None<T> fst, Option.Some<T> snd) -> -1;
+                case final Tuple<Option<T>, Option<T>> (Option.Some<T> fst, Option.Some<T> snd) -> fst.value.compareTo(snd.value);
+            };
         }
 
         static record None<T extends Comparable<T>>() implements Option<T> {
@@ -295,21 +313,12 @@ public class CrdtTest {
      * Solves conflict by taking always the maximum version
      */
     private static final <T extends Comparable<T>> T resolveConflicts(final UnionResult<T, T> unionResult) {
-        switch (unionResult) {
-            case final UnionResult.LeftOnly<T, T> l -> {
-                return l.left();
-            }
-            case final UnionResult.RightOnly<T, T> r -> {
-                return r.right();
-            }
-            case final UnionResult.Both<T, T> b -> {
-                if (b.right().compareTo(b.left()) > 0) {
-                    return b.right();
-                }
-
-                return b.left();
-            }
-        }
+        return switch (unionResult) {
+            case final UnionResult.LeftOnly<T, T> l -> l.left();
+            case final UnionResult.RightOnly<T, T> r -> r.right();
+            case final UnionResult.Both<T, T> b when b.right().compareTo(b.left()) > 0 -> b.right();
+            case final UnionResult.Both<T, T> b -> b.left();
+        };
     }
 }
 ```
