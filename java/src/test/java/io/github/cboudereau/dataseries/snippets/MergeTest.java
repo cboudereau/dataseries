@@ -28,5 +28,4 @@ public class MergeTest {
 
         assertArrayEquals(expected.toArray(), actual.stream().toArray());
     }
-
 }
