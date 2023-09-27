@@ -17,7 +17,7 @@ final class Merge<P, T> implements Iterator<DataPoint<P, T>> {
         this.series = series;
     }
 
-    private void pull() {
+    private final void pull() {
         if (this.isPulled)
             return;
 
@@ -25,7 +25,7 @@ final class Merge<P, T> implements Iterator<DataPoint<P, T>> {
         pullEntry();
     }
 
-    private void pullEntry() {
+    private final void pullEntry() {
         while (this.series.hasNext()) {
             final var next = this.series.next();
 
@@ -69,5 +69,4 @@ final class Merge<P, T> implements Iterator<DataPoint<P, T>> {
         this.isPulled = false;
         return this.entry.get();
     }
-
 }
