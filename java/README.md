@@ -95,6 +95,7 @@ public class MergeTest {
 
         assertArrayEquals(expected.toArray(), actual.stream().toArray());
     }
+
 }
 ```
 
@@ -205,6 +206,9 @@ public class CrdtTest {
         assertArrayEquals(expected.toArray(), actual.stream().toArray());
     }
 
+    private static record Tuple<L, R>(L fst, R snd) {
+    }
+
     /**
      * Optional from java.util does not provide any Comparable<Optional<T>>
      * implementation like other languages (rust with traits).
@@ -215,15 +219,11 @@ public class CrdtTest {
     private static sealed interface Option<T extends Comparable<T>> extends Comparable<Option<T>>
             permits Option.None, Option.Some {
         default int compareTo(final Option<T> o) {
-            return switch (this) {
-                case final None<T> n1 -> switch (o) {
-                    case final None<T> n2 -> 0;
-                    case final Some<T> s -> -1;
-                };
-                case final Some<T> s1 -> switch (o) {
-                    case None<T> n -> 1;
-                    case Some<T> s2 -> s1.value.compareTo(s2.value);
-                };
+            return switch(new Tuple<>(this, o)){
+                case final Tuple<Option<T>, Option<T>> (Option.None<T> fst, Option.None<T> snd) -> 0;
+                case final Tuple<Option<T>, Option<T>> (Option.Some<T> fst, Option.None<T> snd) -> 1;
+                case final Tuple<Option<T>, Option<T>> (Option.None<T> fst, Option.Some<T> snd) -> -1;
+                case final Tuple<Option<T>, Option<T>> (Option.Some<T> fst, Option.Some<T> snd) -> fst.value.compareTo(snd.value);
             };
         }
 
@@ -316,7 +316,8 @@ public class CrdtTest {
         return switch (unionResult) {
             case final UnionResult.LeftOnly<T, T> l -> l.left();
             case final UnionResult.RightOnly<T, T> r -> r.right();
-            case final UnionResult.Both<T, T> b -> b.right().compareTo(b.left()) > 0 ? b.right() : b.left();
+            case final UnionResult.Both<T, T> b when b.right().compareTo(b.left()) > 0 -> b.right();
+            case final UnionResult.Both<T, T> b -> b.left();
         };
     }
 }

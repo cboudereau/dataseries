@@ -69,5 +69,4 @@ final class Merge<P, T> implements Iterator<DataPoint<P, T>> {
         this.isPulled = false;
         return this.entry.get();
     }
-
 }
