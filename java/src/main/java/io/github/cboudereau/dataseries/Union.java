@@ -29,9 +29,9 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
         @Override
         default int compareTo(final Value<T> o) {
             return switch (new Tuple<>(this, o)) {
-                case final Tuple<Value<T>, Value<T>>(Value.Infinite<T> fst, Value.Infinite<T> snd) -> 0;
-                case final Tuple<Value<T>, Value<T>>(Value.Infinite<T> fst, Value.Fixed<T> snd) -> 1;
-                case final Tuple<Value<T>, Value<T>>(Value.Fixed<T> fst, Value.Infinite<T> snd) -> -1;
+                case final Tuple<Value<T>, Value<T>>(Value.Infinite<T> _, Value.Infinite<T> _) -> 0;
+                case final Tuple<Value<T>, Value<T>>(Value.Infinite<T> _, Value.Fixed<T> _) -> 1;
+                case final Tuple<Value<T>, Value<T>>(Value.Fixed<T> _, Value.Infinite<T> _) -> -1;
                 case final Tuple<Value<T>, Value<T>>(Value.Fixed<T> fst, Value.Fixed<T> snd) ->
                     fst.value.compareTo(snd.value);
             };
