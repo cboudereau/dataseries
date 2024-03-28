@@ -9,6 +9,9 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
 
     sealed interface Value<T extends Comparable<T>> extends Comparable<Value<T>> permits Value.Fixed, Value.Infinite {
 
+        static record Tuple<L, R>(L fst, R snd) {
+        }
+
         public static final record Fixed<T extends Comparable<T>>(T value) implements Value<T> {
         }
 
@@ -25,15 +28,12 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
 
         @Override
         default int compareTo(final Value<T> o) {
-            return switch (this) {
-                case final Infinite<T> i -> switch (o) {
-                    case final Infinite<T> i2 -> 0;
-                    case final Fixed<T> v -> 1;
-                };
-                case final Fixed<T> v -> switch (o) {
-                    case final Infinite<T> i -> -1;
-                    case final Fixed<T> v2 -> v.value.compareTo(v2.value);
-                };
+            return switch (new Tuple<>(this, o)) {
+                case final Tuple<Value<T>, Value<T>>(Value.Infinite<T> fst, Value.Infinite<T> snd) -> 0;
+                case final Tuple<Value<T>, Value<T>>(Value.Infinite<T> fst, Value.Fixed<T> snd) -> 1;
+                case final Tuple<Value<T>, Value<T>>(Value.Fixed<T> fst, Value.Infinite<T> snd) -> -1;
+                case final Tuple<Value<T>, Value<T>>(Value.Fixed<T> fst, Value.Fixed<T> snd) ->
+                    fst.value.compareTo(snd.value);
             };
         }
 
@@ -105,9 +105,9 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
             if (this.state.isPresent()) {
                 return switch (this.state.get()) {
                     case final Cursor.Single<T> single -> Optional.empty();
-                    case final Cursor.Pair<T> pair ->
-                        this.iterator.hasNext() ? Optional.of(Cursor.pair(pair.second(), this.iterator.next()))
-                                : Optional.of(Cursor.single(pair.second()));
+                    case final Cursor.Pair<T> pair when this.iterator.hasNext() ->
+                        Optional.of(Cursor.pair(pair.second(), this.iterator.next()));
+                    case final Cursor.Pair<T> pair -> Optional.of(Cursor.single(pair.second()));
                 };
             }
 
@@ -277,10 +277,12 @@ final class Union<P extends Comparable<P>, L, R, T> implements Iterator<DataPoin
     private final UnionState<DataPoint<P, L>, DataPoint<P, R>> getState() {
         return switch (this.state) {
             case final UnionState.None<DataPoint<P, L>, DataPoint<P, R>> none -> getInitState();
-            case final UnionState.LeftOnly<DataPoint<P, L>, DataPoint<P, R>> left ->
-                (this.left.hasNext()) ? UnionState.leftOnly(this.left.next()) : UnionState.none();
-            case final UnionState.RightOnly<DataPoint<P, L>, DataPoint<P, R>> right ->
-                this.right.hasNext() ? UnionState.rightOnly(this.right.next()) : UnionState.none();
+            case final UnionState.LeftOnly<DataPoint<P, L>, DataPoint<P, R>> left when this.left.hasNext() ->
+                UnionState.leftOnly(this.left.next());
+            case final UnionState.LeftOnly<DataPoint<P, L>, DataPoint<P, R>> left -> UnionState.none();
+            case final UnionState.RightOnly<DataPoint<P, L>, DataPoint<P, R>> right when this.right.hasNext() ->
+                UnionState.rightOnly(this.right.next());
+            case final UnionState.RightOnly<DataPoint<P, L>, DataPoint<P, R>> right -> UnionState.none();
             case final UnionState.Overlapped<DataPoint<P, L>, DataPoint<P, R>> overlapped ->
                 getOverlappedState(overlapped).orElseGet(() -> UnionState.none());
             case final UnionState.Disjointed<DataPoint<P, L>, DataPoint<P, R>> disjointed ->
