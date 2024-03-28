@@ -45,9 +45,10 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
     <argLine>--enable-preview</argLine>
+    <snippetPath>--snippet-path=${basedir}/src/test/java/io/github/cboudereau/dataseries</snippetPath>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
@@ -69,6 +70,7 @@
         <configuration>
           <additionalJOptions>
             <additionalJOption>${argLine}</additionalJOption>
+            <additionalJOption>${snippetPath}</additionalJOption>
           </additionalJOptions>
         </configuration>
         <reportSets>
@@ -145,6 +147,7 @@
         <configuration>
           <additionalJOptions>
             <additionalJOption>${argLine}</additionalJOption>
+            <additionalJOption>${snippetPath}</additionalJOption>
           </additionalJOptions>
         </configuration>
         <executions>
