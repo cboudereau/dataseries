@@ -96,7 +96,7 @@ public class CrdtTest {
         @Override
         public int compareTo(final VersionedValue<V, T> o) {
             var vc = this.version.compareTo(o.version);
-            (vc != 0) ? vc : this.value.compareTo(o.value);
+            return (vc != 0) ? vc : this.value.compareTo(o.value);
         }
     }
 
