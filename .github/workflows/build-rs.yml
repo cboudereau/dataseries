@@ -52,7 +52,9 @@ jobs:
         run: cd rust && cargo run --manifest-path ./xtask/Cargo.toml -- coverage
 
       - name: Upload to codecov.io
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
           files: rust/coverage/*.lcov
           flags: rust
